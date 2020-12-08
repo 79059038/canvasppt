@@ -1,0 +1,10 @@
+{
+    "compilerOptions":{
+        "baseUrl": "./",
+        "paths": {
+            "@canvasppt":["src/index.js"],
+            "@util/*":["/src/util/*"],
+            "@shape/*":["/src/shapes/*"]
+        }
+    }
+}
