@@ -20,6 +20,7 @@ module.exports = {
     },
     resolve: {
         alias: {
+            '@': path.resolve(__dirname, '../src/'),
             '@canvasppt': path.resolve(__dirname, '../src/index.js'),
             '@util': path.resolve(__dirname, '../src/util/'),
             '@shape': path.resolve(__dirname, '../src/shapes/')

@@ -1,3 +1,4 @@
+import {cleanup, activeEffect} from './effect';
 export const MAX_UPDATE_COUNT = 100;
 
 const queue = [];
@@ -16,9 +17,9 @@ function resetSchedulerState() {
     has = {};
 }
 
-function resetComputedState() {
-    comIndex = hasComputeQueue.length = 0;
-    hasCom = {};
+function resetComputedState(index) {
+    hasComputeQueue = hasComputeQueue.slice(index)
+    comIndex = 0;
 }
 
 
@@ -36,39 +37,47 @@ if (typeof performance.now === 'function') {
  * 通过requestanimationframe循环调用的方法。后续增加先循环调用
  */
 function flushSchedulerQueue() {
+    // TODO 明日复明日 计算浏览器渲染间隔方案
+
     // 所有执行完成 即不再调用该方法。否则循环调用
     if (waiting) {
         return;
     }
-    let watcher; let id;
+    let id;
 
-    // 先判断需渲染的watcher队列  存在即立刻开始渲染
+    // 先判断需渲染的effect队列  存在即立刻开始渲染
     if (queue.length) {
         for (index = 0; index < queue.length; index++) {
-            watcher = queue[index];
-            ({id} = watcher);
+            activeEffect = queue[index];
+            ({id} = activeEffect);
             has[id] = null;
-            watcher.run();
+            activeEffect.run();
         }
         resetSchedulerState();
     }
-    // 再判断需要computed的watcher队列
-    // TODO 根据时间做类似react的中断处理
+
+    // 再判断需要computed的effect队列
     if (hasComputeQueue.length) {
         for (comIndex = 0; comIndex < hasComputeQueue.length; comIndex++) {
-            watcher = hasComputeQueue[comIndex];
-            ({id} = watcher);
-            const result = watcher.computed();
+            activeEffect = hasComputeQueue[comIndex];
+            // 若中断数为0 说明这次是重新开始 则先清空已收集的依赖
+            if (activeEffect.break === 0) {
+                cleanup(activeEffect);
+            }
+            
+            ({id} = activeEffect);
+            // TODO 需要传入需要截止的时间
+            const result = activeEffect.computed();
             // 根据运行结果,如果是正常执行则将其置空, 且加入渲染队列 如果是时间太长中断导致则直接退出循环
             if (!result.break) {
                 hasCom[id] = null;
-                queueWatcher(watcher);
+                queueEffect(activeEffect);
             }
             else {
                 break;
             }
         }
-        resetComputedState();
+        resetComputedState(comIndex);
     }
 
     // 如果渲染队列和计算队列都为空 则进入等待状态
@@ -84,14 +93,14 @@ export function nextTick(cb) {
 }
 
 /**
- * 将需要渲染的watcher放入渲染队列中
+ * 将需要渲染的effect放入渲染队列中
  */
-export function queueWatcher(watcher) {
-    const {id} = watcher;
+export function queueEffect(effect) {
+    const {id} = effect;
     // 执行过的has[id] 会被置为null
     if (has[id] == null) {
         has[id] = true;
-        queue.push(watcher);
+        queue.push(effect);
         // 如果当前队列为空 则启动循环事件
         if (waiting) {
             waiting = false;
@@ -100,16 +109,21 @@ export function queueWatcher(watcher) {
     }
 }
 
-export function queueHasComputedWatcher(watcher) {
-    const {id} = watcher;
+export function queueHasComputedEffect(effect) {
+    const {id} = effect;
     // 执行过的has[id] 会被置为null
     if (hasCom[id] == null) {
         hasCom[id] = true;
-        hasComputeQueue.push(watcher);
+        hasComputeQueue.push(effect);
         // 如果当前队列为空 则启动循环事件
         if (waiting) {
             waiting = false;
             nextTick(flushSchedulerQueue);
         }
+    }
+    else {
+        // 说明该计算引入有了新的数据变动，将记录上次计算中断的数字改为0 即下次全部重新计算
+        // 感觉还有优化空间 后续再说
+        effect.break = 0;
     }
 }

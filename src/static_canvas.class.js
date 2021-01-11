@@ -17,6 +17,8 @@ const StaticCanvas = createClass(Common, {
     controlsAboveOverlay: false
 },
 {
+
+    _objects: [],
     // 当前 聚焦的viewport 的transformation
     viewportTransform: iMatrix.concat(),
     // 暂时没看懂啥意思
@@ -24,19 +26,19 @@ const StaticCanvas = createClass(Common, {
     // 检测当前canvas是否正在渲染
     isRendering: 0,
     // 类初始化方法
-    initialize(el, options) {
+    initialize(options, el) {
         // 供外部调用整体渲染的方法绑定this
         this.renderAllBound = this.renderAll.bind(this);
-        this._initStatic(el, options);
+        this._initStatic(options, el);
 
     },
     // 方便子类调用
-    _initStatic(el, options) {
+    _initStatic(options, el) {
         this.createLowerCanvas(el);
         // 初始化options 增加监控
         this.setCanvasStyle(options);
         // 设置背景
-        if (this.options.backgroundImage) {
+        if (this.backgroundImage) {
             this.setBackgroundImage(options.backgroundImage);
         }
         // 初始化当前canvas是否需要重新渲染
@@ -60,6 +62,13 @@ const StaticCanvas = createClass(Common, {
         }
 
         this.contextContainer = this.lowerCanvasEl.getContext('2d');
+    },
+    add(...objects) {
+        this._objects = this._objects.concat(objects);
+        objects.forEach(item => {
+            item.canvas = this;
+        });
+        this.renderCanvas(this.contextContainer, this._objects);
     },
     // 初始化options
     setCanvasStyle() {

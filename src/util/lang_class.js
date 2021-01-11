@@ -13,13 +13,17 @@ export const emptyFunction = function () { };
  */
 export function createClass(parent, extendOptions, extendFunction, className) {
     const child = function (...options) {
+        // 存在不传入option情况 则默认填充一个空对象
+        if (options[0] && Object.prototype.toString.call(options[0]) !== '[object Object]') {
+            options.unshift({})
+        }
         // 初始化option 主要和类option合并以及产生映射 可直接this.  第一个参数默认为option
         this._initOption(options[0]);
         this.initialize(...options);
     };
     // 记录父级关系
     child.superclass = parent;
-    child.prototype = Object.create(parent.prototype);
+    child.prototype = Object.create(parent.prototype? parent.prototype : {});
     child.prototype.constructor = child;
     // 方便子类调用父级
     child.prototype.callSuper = callSuper;
@@ -47,7 +51,7 @@ export function createClass(parent, extendOptions, extendFunction, className) {
 /**
  * 合并option信息，后续只提供操作option相关
  */
-export function mergeOptions(parent, child) {
+export function mergeOptions(parent = {}, child) {
 
     const options = {};
 
@@ -56,13 +60,13 @@ export function mergeOptions(parent, child) {
     }
 
     for (const key in child) {
-        if (hasOwn(parent, child)) {
+        if (!hasOwn(parent, key)) {
             mergeField(key);
         }
     }
 
     function mergeField(key) {
-        options[key] = child[key] ? parent[key] : child[key];
+        options[key] = child[key] !== undefined ? child[key] : parent[key];
     }
 
     return options;

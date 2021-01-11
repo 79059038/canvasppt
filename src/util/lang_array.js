@@ -39,3 +39,18 @@ export function min(array, byProperty) {
 export function max(array, byProperty) {
     return find(array, byProperty, (value1, value2) => value1 >= value2);
 }
+
+/**
+ * 判断是合法的数字key值
+ * @param {String} key 
+ */
+export function isIntegerKey(key) {
+    return isString(key) &&
+        key !== 'NaN' &&
+        key[0] !== '-' &&
+        '' + parseInt(key, 10) === key
+}
+
+export function isArray (val) {
+    return Array.isArray(val)
+}

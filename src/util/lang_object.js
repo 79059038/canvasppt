@@ -40,4 +40,8 @@ export function extend(destination, source, deep) {
       }
     }
     return destination;
-  }
+}
+
+export function hasOwn(val, key) {
+  return Object.prototype.hasOwnProperty.call(val, key)
+}

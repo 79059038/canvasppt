@@ -2,9 +2,7 @@ import {createClass} from '../util/lang_class';
 import ObjectClass from './object.class';
 
 
-const RectClass = createClass(ObjectClass, {}, {
-    type: 'rect',
-
+const RectClass = createClass(ObjectClass, {
     /**
      * 边框弧度 水平半径
      */
@@ -13,6 +11,8 @@ const RectClass = createClass(ObjectClass, {}, {
      * 边框弧度 垂直半径
      */
     ry:   0,
+}, {
+    type: 'rect',
 
     cacheProperties: ObjectClass.prototype.cacheProperties.concat('rx', 'ry'),
 
@@ -68,6 +68,7 @@ const RectClass = createClass(ObjectClass, {}, {
         isRounded && ctx.bezierCurveTo(x, y + k * ry, x + k * rx, y, x + rx, y);
 
         ctx.closePath();
+        this._renderPaintInOrder(ctx);
     },
 
     /**

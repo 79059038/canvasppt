@@ -1,8 +1,7 @@
-import CanvasPpt, {StaticCanvas, RectClass} from '@canvasppt';
+import CanvasPpt from '@canvasppt';
+const canvas = new CanvasPpt.StaticCanvas({width: 960, height: 720}, 'canvas');
 
-const canvas = new StaticCanvas('canvas');
-
-canvas.add(new RectClass({
+canvas.add(new CanvasPpt.RectClass({
     top: 100,
     left: 100,
     width: 100,
@@ -10,5 +9,3 @@ canvas.add(new RectClass({
 }));
 
 window.CanvasPpt = CanvasPpt;
-
-console.log('fffffff');

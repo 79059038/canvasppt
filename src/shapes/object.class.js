@@ -3,6 +3,7 @@ import {NUM_FRACTION_DIGITS} from '../public';
 import {createClass} from '../util/lang_class';
 import Common from '../mixins/common.class.mixin';
 import origin from '../mixins/object_origin.mixin';
+import geometry from '../mixins/object_geometry.mixin.js';
 import {devicePixelRatio, browserShadowBlurConstant, iMatrix, PPTCanvas} from '../HEADER';
 import {clone} from '../util/lang_class'
 import {enlivenPatterns} from '../util/misc'
@@ -107,6 +108,19 @@ const CObject = createClass(Common, {
         this._setOpacity(ctx);
         // 设置阴影区
         this._setShadow(ctx, this);
+        this.drawObject(ctx);
+    },
+
+    /**
+     * 
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    drawObject(ctx) {
+        // 设置透明度
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.fill;
+        // 基本子类覆盖
+        this._render(ctx);
     },
 
     /**
@@ -402,7 +416,8 @@ const CObject = createClass(Common, {
         return object;
     },
     // 结构object_origin中的公共方法
-    ...origin
+    ...origin,
+    ...geometry
 });
 
 
@@ -417,11 +432,11 @@ CObject._fromObject = function(className, object, callback, extraParam) {
       if (typeof patterns[1] !== 'undefined') {
         object.stroke = patterns[1];
       }
-      fabric.util.enlivenObjects([object.clipPath], function(enlivedProps) {
-        object.clipPath = enlivedProps[0];
-        var instance = extraParam ? new klass(object[extraParam], object) : new klass(object);
-        callback && callback(instance);
-      });
+    //   fabric.util.enlivenObjects([object.clipPath], function(enlivedProps) {
+    //     object.clipPath = enlivedProps[0];
+    //     var instance = extraParam ? new klass(object[extraParam], object) : new klass(object);
+    //     callback && callback(instance);
+    //   });
     });
 }
 

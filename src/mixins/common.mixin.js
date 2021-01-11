@@ -28,7 +28,7 @@ export const commonFunction = {
     },
     // 将内部options数据绑定到对象中
     bindOptionObject() {
-        const keys = Object.keys(this.options);
+        const keys = Object.keys(this._options);
         let i = keys.length;
         while (i--) {
             proxy(this, '_options', keys[i]);
@@ -38,6 +38,7 @@ export const commonFunction = {
         // 合并option
         this._options = mergeOptions(this.constructor.options, options);
         // TODO对options数据做监听
+        
         this.bindOptionObject();
     }
 };
