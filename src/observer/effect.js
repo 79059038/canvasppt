@@ -61,7 +61,7 @@ export function cleanup(effect) {
  * @param {Object} target 
  * @param {String} key 
  */
-export function track(target, type,key) {
+export function track(target, type, key) {
     if(activeEffect === undefined) {
         return
     }

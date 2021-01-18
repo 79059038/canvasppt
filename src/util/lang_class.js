@@ -8,8 +8,8 @@ export const emptyFunction = function () { };
 /**
  * 根据父类创建子类
  * @param {*} parent 父类方法
- * @param {*} extendOption 可供外界变更操作的属性
- * @param {*} extendFunction 该类内部相关属性与方法
+ * @param {*} extendOption 可供外界变更操作的属性 是可以作为每个实例独有的
+ * @param {*} extendFunction 该类内部相关属性与方法 所有都是该类共有的
  */
 export function createClass(parent, extendOptions, extendFunction, className) {
     const child = function (...options) {
