@@ -36,6 +36,11 @@ export function createClass(parent, extendOptions, extendFunction, className) {
 
     mergeFunction(child, extendFunction);
 
+    child.shallowOptions = mergeOptions(
+        parent.shallowOptions,
+        child.shallowOptions
+    )
+
     // 必须要有初始化函数
     if (!child.prototype.initialize) {
         child.prototype.initialize = emptyFunction;
@@ -50,18 +55,23 @@ export function createClass(parent, extendOptions, extendFunction, className) {
 
 /**
  * 合并option信息，后续只提供操作option相关
+ * onlyParent表示child只针对父类存在的属性值进行覆盖
  */
-export function mergeOptions(parent = {}, child) {
+export function mergeOptions(parent = {}, child, onlyParent = false) {
 
     const options = {};
 
+    // 先合并父类存在的
     for (const key in parent) {
         mergeField(key);
     }
 
-    for (const key in child) {
-        if (!hasOwn(parent, key)) {
-            mergeField(key);
+    if (!onlyParent) {
+        // 再合并子类特殊的属性
+        for (const key in child) {
+            if (!hasOwn(parent, key)) {
+                mergeField(key);
+            }
         }
     }
 
@@ -79,8 +89,11 @@ export function mergeOptions(parent = {}, child) {
  */
 function mergeFunction(child, extendFunction) {
     for (const property in extendFunction) {
-        if (extendFunction[property]) {
+        if (typeof extendFunction[property] === 'function' || property.startsWith('__static')) {
             child.prototype[property] = extendFunction[property];
+        }
+        else {
+            child.shallowOptions[property] = extendFunction[property];
         }
     }
 }

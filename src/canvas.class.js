@@ -3,6 +3,7 @@ import {createClass} from './util/lang_class';
 import StaticCanvas from './static_canvas.class';
 import {wrapElement, setStyle, makeElementUnselectable, addClass} from '@util/dom_mics.js';
 import {getPointer} from '@util/dom_event.js';
+import {transformPoint, invertTransform} from '@/util/misc.js';
 
 /**
  * contextTop - _createUpperCanvas 顶部canvas的context
@@ -186,6 +187,13 @@ const CanvasClass = createClass(StaticCanvas, {
             x: pointer.x * cssScale.width,
             y: pointer.y * cssScale.height
         };
+    },
+
+    restorePointerVpt: function(pointer) {
+        return transformPoint(
+          pointer,
+          invertTransform(this.viewportTransform)
+        );
     },
 
     ...canvasEvent

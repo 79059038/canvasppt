@@ -36,7 +36,8 @@ export const commonFunction = {
     },
     _initOption(options) {
         // TODO 将constructor.options做深拷贝
-        this._options = mergeOptions(this.constructor.options, options);
+        this._options = mergeOptions(this.constructor.options, options, true);
+        // TODO 将将constructor.shallowOptions做合并  明日复明日
         // TODO对options数据做监听
         
         this.bindOptionObject();
