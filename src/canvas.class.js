@@ -16,6 +16,11 @@ const CanvasClass = createClass(StaticCanvas, {
     interactive: true
 }, {
 
+    _currentTransform: null,
+
+    // 已选择对象
+    _activeObject: null,
+
     initialize(options, el) {
         // 在static父类里
         this._initStatic(options, el)
@@ -123,7 +128,7 @@ const CanvasClass = createClass(StaticCanvas, {
      * 返回点在canvas中的真实坐标
      * 可返回是否在viewportTransform作用下的坐标
      * ignoreZoom是false时返回鼠标在canvas点击的位置，空间坐标，图形坐标也是相同的
-     * ignoreZoom是true时返回的是经过viewportTransform处理的坐标,Element相对于top和left坐标
+     * ignoreZoom是true时返回的是返回的是鼠标点击实际位于canvas的物理像素 x y
      * 要与图形左侧或顶部交互时经常使用ignoreZoom=true,
      * ignoreZoom=false是提供与object.oCoords兼容的坐标
      * @param {Event} e 
@@ -139,7 +144,8 @@ const CanvasClass = createClass(StaticCanvas, {
         }
   
         const upperCanvasEl = this.upperCanvasEl,
-            // getBoundingClientRect返回的该元素是与相对视口的位置距离 即不是加上滚动轴的
+            // getBoundingClientRect返回的该元素是与相对视口的位置距离 即不是加上滚动轴的 
+            // 宽高啥的都是会被css影响的 计算scale后的
             bounds = upperCanvasEl.getBoundingClientRect()
         let boundsWidth = bounds.width || 0,
             boundsHeight = bounds.height || 0
@@ -165,13 +171,14 @@ const CanvasClass = createClass(StaticCanvas, {
         if (!ignoreZoom) {
             pointer = this.restorePointerVpt(pointer);
         }
-        //  TODO 明日复明日
-        var retinaScaling = this.getRetinaScaling();
+        //  获取屏幕物理分辨率和css分辨率的比率
+        const retinaScaling = this.getRetinaScaling();
         if (retinaScaling !== 1) {
             pointer.x /= retinaScaling;
             pointer.y /= retinaScaling;
         }
   
+        // 检测是否存在css缩放
         if (boundsWidth === 0 || boundsHeight === 0) {
             // If bounds are not available (i.e. not visible), do not apply scale.
             cssScale = { width: 1, height: 1 };
@@ -182,7 +189,7 @@ const CanvasClass = createClass(StaticCanvas, {
                 height: upperCanvasEl.height / boundsHeight
             };
         }
-  
+        // 一通操作  返回的是鼠标点击实际位于canvas的物理像素 x y
         return {
             x: pointer.x * cssScale.width,
             y: pointer.y * cssScale.height
@@ -194,6 +201,73 @@ const CanvasClass = createClass(StaticCanvas, {
           pointer,
           invertTransform(this.viewportTransform)
         );
+    },
+
+    /**
+     * 返回已选择的对象数组
+     */
+    getActiveObjects() {
+        const active = this._activeObject;
+        if (active) {
+            if (active.type === 'activeSelection' && active._objects) {
+                return active._objects.slice(0);
+            }
+            else {
+                return [active];
+            }
+        }
+        return [];
+    },
+
+    /**
+     * 在一堆对象中或者正在绘制的canvas中 检查一个点坐标在对象内部
+     * @param {Array} objects 
+     * @param {Object} pointer 想要检查的点坐标
+     */
+    _searchPossibleTargets: function(objects, pointer) {
+        // Cache all targets where their bounding box contains point.
+        // 缓存所有边框包含点的对象
+        let target
+        let i = objects.length;
+        let subTarget;
+        // Do not check for currently grouped objects, since we check the parent group itself.
+        // 检查完parent group以后就不检查当前group。（一般而言parent group覆盖范围更大）
+        // until we call this function specifically to search inside the activeGroup
+        // 除非调用这个方法检查点是否在当前选中目标中
+        while (i--) {
+            const objToCheck = objects[i];
+            const pointerToUse = objToCheck.group && objToCheck.group.type !== 'activeSelection' ?
+                // TODO 明日复明日 不是已选目标对象的数组group
+                this._normalizePointer(objToCheck.group, pointer) : pointer;
+            if (this._checkTarget(pointerToUse, objToCheck, pointer)) {
+                target = objects[i];
+                if (target.subTargetCheck && target instanceof fabric.Group) {
+                    subTarget = this._searchPossibleTargets(target._objects, pointer);
+                    subTarget && this.targets.push(subTarget);
+                }
+                break;
+            }
+        }
+        return target;
+    },
+
+    findTarget(e, skipGroup) {
+        const ignoreZoom = true;
+        // 获取点的实际canvas内坐标
+        const pointer = this.getPointer(e, ignoreZoom);
+        const activeObject = this._activeObject;
+        // 返回已选择的对象数组
+        const aObjects = this.getActiveObjects();
+        let activeTarget;
+        let activeTargetSubs,
+        const isTouch = isTouchEvent(e);
+
+        // 首先检查 当前group。active group不像是一般的group一样检查子元素
+        this.targets = [];
+
+        if (aObjects.length > 1 && !skipGroup && activeObject === this._searchPossibleTargets([activeObject], pointer)) {
+            return activeObject;
+        }
     },
 
     ...canvasEvent

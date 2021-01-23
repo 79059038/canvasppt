@@ -4,6 +4,8 @@ import {removeListener} from '../util/dom_event.js'
 // 为true，防止因为进入监听事件导致滚动轴滚动不可用
 const addEventOptions = {passive: false}
 
+
+
 export default {
     /**
      * 给canvas添加鼠标事件
@@ -99,12 +101,34 @@ export default {
         addListener(fabric.document, eventTypePrefix + 'move', this._onMouseMove, addEventOptions);
     },
 
+    _handleEvent: function(e, eventType, button, isClick) {
+        // target指代目前点击事件中命中的元素
+        const target = this._target,
+            targets = this.targets || [],
+            options = {
+                e: e,
+                target,
+                subTargets: targets,
+                button: button || LEFT_CLICK,
+                isClick: isClick || false,
+                pointer: this._pointer,
+                absolutePointer: this._absolutePointer,
+                transform: this._currentTransform
+            };
+        this.fire('mouse:' + eventType, options);
+        target && target.fire('mouse' + eventType, options);
+        for (var i = 0; i < targets.length; i++) {
+            targets[i].fire('mouse' + eventType, options);
+        }
+    },
+
     /**
      * 方法定义了在鼠标点击canvas后的行为
      * 这方法初始化了currentTransform，渲染所有canvas然后当前图像放置在顶部canvas
      * @param {Event} e 
      */
     __onMouseDown: function (e) {
+        // TODO 明日复明日
         this._cacheTransformEventData(e);
         this._handleEvent(e, 'down:before');
         var target = this._target;

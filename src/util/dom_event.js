@@ -1,4 +1,4 @@
-import {getScrollLeftTop} from './dom_event.js'
+import {getScrollLeftTop} from './dom_mics.js'
 /**
  * 移除相关dom元素的事件监听
  * @param {Element} element 

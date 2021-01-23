@@ -37,7 +37,7 @@ if (typeof performance.now === 'function') {
  * 通过requestanimationframe循环调用的方法。后续增加先循环调用
  */
 function flushSchedulerQueue() {
-    // TODO 明日复明日 计算浏览器渲染间隔方案
+    // TODO 计算浏览器渲染间隔方案
 
     // 所有执行完成 即不再调用该方法。否则循环调用
     if (waiting) {
