@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+</head>
+<body>
+    <div id="app">
+        <canvas id="mycanvas" width="900" height="600"></canvas>
+    </div>
+    <script>
+            var canvas = document.getElementById("mycanvas")
+            ctx = canvas.getContext('2d');
+            // ctx.moveTo(0,0);
+            // ctx.lineTo(300,150);
+            ctx.arc(200,200,200,0,2 * Math.PI)
+            ctx.scale(2,2)
+            ctx.stroke();
+    </script>
+</body>
+</html>

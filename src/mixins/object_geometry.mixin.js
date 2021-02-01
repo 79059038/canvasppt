@@ -88,6 +88,9 @@ export default {
         return this;
     },
 
+    /**
+     * 计算当前元素的四个顶点坐标 bl br tl tr
+     */
     calcACoords() {
         const rotateMatrix = this.calcRotateMatrix();
         const translateMatrix = this.calcTranslateMatrix();
@@ -103,13 +106,18 @@ export default {
         };
     },
 
+    // 不知道计算了个锤子
     calcLineCoords() {
         const vpt = this.getViewportTransform();
         const {padding} = this;
         const angle = degreesToRadians(this.angle);
-        const cos = cosFun(angle); const sin = sinFun(angle);
-        const cosP = cos * padding; const sinP = sin * padding; const cosPSinP = cosP + sinP;
-        const cosPMinusSinP = cosP - sinP; const aCoords = this.calcACoords();
+        const cos = cosFun(angle);
+        const sin = sinFun(angle);
+        const cosP = cos * padding;
+        const sinP = sin * padding;
+        const cosPSinP = cosP + sinP;
+        const cosPMinusSinP = cosP - sinP;
+        const aCoords = this.calcACoords();
 
         const lineCoords = {
             tl: transformPoint(aCoords.tl, vpt),
@@ -289,5 +297,91 @@ export default {
         return prefix + this.top + sep + this.left + sep + this.scaleX + sep + this.scaleY
           + sep + this.skewX + sep + this.skewY + sep + this.angle + sep + this.originX + sep + this.originY
           + sep + this.width + sep + this.height + sep + this.strokeWidth + this.flipX + this.flipY;
+    },
+
+    // 检查一个点是否在当前对象中
+    containsPoint: function(point, lines, absolute, calculate) {
+        const coords = this._getCoords(absolute, calculate),
+            // 图形的四边线段的坐标
+            lines = lines || this._getImageLines(coords),
+            xPoints = this._findCrossPoints(point, lines);
+        // if xPoints is odd then point is inside the object
+        return (xPoints !== 0 && xPoints % 2 === 1);
+    },
+
+    /**
+     * 这个鬼方法是用来判断 一个点延伸的水平线与图形四边有多少交点
+     * 主要用来判断是否某个点在图形内部。
+     * 一个点向右延伸的射线如果与图形边缘存在奇数个点 表示在图形内部。
+     * @param {Object} point 
+     * @param {Object} lines 
+     */
+    _findCrossPoints: function(point, lines) {
+        let b1, b2, a1, a2, xi, // yi,
+            xcount = 0,
+            iLine;
+  
+        for (const lineKey in lines) {
+          iLine = lines[lineKey];
+          // optimisation 1: line below point. no cross
+          if ((iLine.o.y < point.y) && (iLine.d.y < point.y)) {
+            continue;
+          }
+          // optimisation 2: line above point. no cross
+          if ((iLine.o.y >= point.y) && (iLine.d.y >= point.y)) {
+            continue;
+          }
+          // optimisation 3: vertical line case
+          if ((iLine.o.x === iLine.d.x) && (iLine.o.x >= point.x)) {
+            xi = iLine.o.x;
+            // yi = point.y;
+          }
+          // calculate the intersection point
+          else {
+            b1 = 0;
+            b2 = (iLine.d.y - iLine.o.y) / (iLine.d.x - iLine.o.x);
+            a1 = point.y - b1 * point.x;
+            a2 = iLine.o.y - b2 * iLine.o.x;
+  
+            xi = -(a1 - a2) / (b1 - b2);
+            // yi = a1 + b1 * xi;
+          }
+          // dont count xi < point.x cases
+          if (xi >= point.x) {
+            xcount += 1;
+          }
+          // optimisation 4: specific for square images
+          if (xcount === 2) {
+            break;
+          }
+        }
+        return xcount;
+    },
+
+    /**
+     * 返回对象包含图形四边线段的坐标
+     * @param {Object} oCoords 
+     */
+    _getImageLines: function(oCoords) {
+        const lines = {
+          topline: {
+            o: oCoords.tl,
+            d: oCoords.tr
+          },
+          rightline: {
+            o: oCoords.tr,
+            d: oCoords.br
+          },
+          bottomline: {
+            o: oCoords.br,
+            d: oCoords.bl
+          },
+          leftline: {
+            o: oCoords.bl,
+            d: oCoords.tl
+          }
+        };
+  
+        return lines;
     }
 };

@@ -71,7 +71,12 @@ const CObject = createClass(Common, {
     /**
      * 若置为false 元素不会渲染控制边框
      */
-    hasBorders: true
+    hasBorders: true,
+    // 设置为false时，当前对象不能成为事件的目标对象。即事件中的小透明
+    evented: true,
+
+    // 绘制的时候先绘制fill还是stroke 二选一
+    paintFirst: 'fill'
 }, {
     type: 'object',
 
@@ -383,6 +388,45 @@ const CObject = createClass(Common, {
             ctx.transform(t[0], t[1], t[2], t[3], t[4], t[5]);
         }
         return {offsetX, offsetY};
+    },
+
+    /**
+     * 决定一个元素是否需要缓存
+     * objectCaching是一个全局的标志，且优先级最高
+     * 当元素进行绘制的时候需要调用needsItsOwnCache方法
+     * 一般情况而言不需要缓存group中的数据
+     */
+    shouldCache() {
+        this.ownCaching = this.needsItsOwnCache() || (
+          this.objectCaching &&
+          (!this.group || !this.group.isOnACache())
+        );
+        return this.ownCaching;
+    },
+
+    /**
+     * 返回当前是否有stroke样式 且不为透明和边框宽度不为0
+     */
+    hasStroke() {
+        return this.stroke && this.stroke !== 'transparent' && this.strokeWidth !== 0;
+    },
+
+    /**
+     * 返回是否当前元素存在fill样式 且不为透明transparent
+     */
+    hasFill() {
+        return this.fill && this.fill !== 'transparent';
+    },
+
+    needsItsOwnCache() {
+        if (this.paintFirst === 'stroke' &&
+          this.hasFill() && this.hasStroke() && typeof this.shadow === 'object') {
+          return true;
+        }
+        if (this.clipPath) {
+          return true;
+        }
+        return false;
     },
 
     /**

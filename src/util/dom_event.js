@@ -1,4 +1,7 @@
 import {getScrollLeftTop} from './dom_mics.js'
+
+const touchEvents = ['touchstart', 'touchmove', 'touchend'];
+
 /**
  * 移除相关dom元素的事件监听
  * @param {Element} element 
@@ -33,4 +36,8 @@ export function getPointer(event) {
       x: _evt.clientX + scroll.left,
       y: _evt.clientY + scroll.top
     };
+}
+
+export function isTouchEvent(event) {
+  return touchEvents.indexOf(event.type) > -1 || event.pointerType === 'touch';
 }

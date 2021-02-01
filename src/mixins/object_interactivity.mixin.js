@@ -165,9 +165,7 @@ export default {
         this.setCoords();
         this.forEachControl((control, key, fabricObject) => {
             if (control.getVisibility(fabricObject, key)) {
-                control.render(ctx,
-                    fabricObject.oCoords[key].x,
-                    fabricObject.oCoords[key].y, styleOverride, fabricObject);
+                control.render(ctx, fabricObject.oCoords[key].x, fabricObject.oCoords[key].y, styleOverride, fabricObject);
             }
         });
         ctx.restore();
@@ -185,5 +183,55 @@ export default {
                 fn(this.controls[i], i, this);
             }
         }
-    }
+    },
+
+    /**
+     * 判断哪个控制边框边缘的点被点击
+     * @param {Object} pointer 鼠标点击的位置
+     * @param {*} forTouch 是否来自于touch事件
+     */
+    _findTargetCorner: function(pointer, forTouch) {
+        // 如果没被控制 属于group 或者不属于被选中的对象 直接返回
+        if (!this.hasControls || this.group || (!this.canvas || this.canvas._activeObject !== this)) {
+          return false;
+        }
+  
+        const ex = pointer.x,
+            ey = pointer.y;
+
+        const keys = Object.keys(this.oCoords)
+
+        let xPoints;
+        let lines;
+        let j = keys.length - 1;
+        let i;
+        this.__corner = 0;
+  
+        // 两级反转！ 先去top点
+        for (; j >= 0; j--) {
+          i = keys[j];
+          // 如果当前元素控制框不显示
+          if (!this.isControlVisible(i)) {
+            continue;
+          }
+          // 获取元素四边的线的坐标
+          lines = this._getImageLines(forTouch ? this.oCoords[i].touchCorner : this.oCoords[i].corner);
+          // 一个点延伸的水平线与图形四边有多少交点
+          xPoints = this._findCrossPoints({ x: ex, y: ey }, lines);
+          if (xPoints !== 0 && xPoints % 2 === 1) {
+            this.__corner = i;
+            return i;
+          }
+        }
+        return false;
+    },
+
+    // 判断是否当前控制线是否可见的
+    isControlVisible: function(controlKey) {
+        return this.controls[controlKey] && this.controls[controlKey].getVisibility(this, controlKey);
+    },
+
+    // 当销毁之前选中元素或者重新设置选中元素 调用该方法。若返回会false则会中断当前近程
+    // 我也不知道为嘛这函数是空的
+    onSelect() {}
 };

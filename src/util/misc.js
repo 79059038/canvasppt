@@ -115,7 +115,7 @@ export function degreesToRadians(degrees) {
 }
 
 /**
- * 转换transformation
+ * 反转 转换transformation。主要矩阵不能相除  但是可以通过乘以逆矩阵的方式得到相同效果
  * @param {*} t
  */
 export function invertTransform(t) {

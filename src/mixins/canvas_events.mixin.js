@@ -5,6 +5,14 @@ import {removeListener} from '../util/dom_event.js'
 const addEventOptions = {passive: false}
 
 
+const RIGHT_CLICK = 3
+const MIDDLE_CLICK = 2
+const LEFT_CLICK = 1
+const addEventOptions = { passive: false };
+
+function checkClick(e, value) {
+  return e.button && (e.button === value - 1);
+}
 
 export default {
     /**
@@ -128,12 +136,12 @@ export default {
      * @param {Event} e 
      */
     __onMouseDown: function (e) {
-        // TODO 明日复明日
         this._cacheTransformEventData(e);
         this._handleEvent(e, 'down:before');
         var target = this._target;
         // if right click just fire events
         if (checkClick(e, RIGHT_CLICK)) {
+          // canvas的某个属性  是否有右击事件
           if (this.fireRightClick) {
             this._handleEvent(e, 'down', RIGHT_CLICK);
           }
@@ -147,6 +155,7 @@ export default {
           return;
         }
   
+        // 是否是在绘制线段
         if (this.isDrawingMode) {
           this._onMouseDownInDrawingMode(e);
           return;
@@ -156,7 +165,7 @@ export default {
           return;
         }
   
-        // ignore if some object is being transformed at this moment
+        // 如果一些图形正在被转换时则忽略当前事件
         if (this._currentTransform) {
           return;
         }
@@ -164,8 +173,10 @@ export default {
         var pointer = this._pointer;
         // save pointer for check in __onMouseUp event
         this._previousPointer = pointer;
-        var shouldRender = this._shouldRender(target),
-            shouldGroup = this._shouldGroup(e, target);
+        const shouldRender = this._shouldRender(target);
+        // 主要作用是除了鼠标点击 看看有没有按shift键 即想要多选
+        const shouldGroup = this._shouldGroup(e, target);
+        // 判断是否需要清空当前所选项
         if (this._shouldClearSelection(e, target)) {
           this.discardActiveObject(e);
         }
@@ -231,4 +242,49 @@ export default {
         this._pointer = null;
         this._absolutePointer = null;
     },
+
+    /**
+     * 判断事件存在id，即其是mainEvent
+     * @param {Event} evt 
+     */
+    _isMainEvent: function(evt) {
+      if (evt.isPrimary === true) {
+        return true;
+      }
+      if (evt.isPrimary === false) {
+        return false;
+      }
+      if (evt.type === 'touchend' && evt.touches.length === 0) {
+        return true;
+      }
+      if (evt.changedTouches) {
+        return evt.changedTouches[0].identifier === this.mainTouchId;
+      }
+      return true;
+    },
+
+    /**
+     * 决定canvas是否需要鼠标点击或者弹起的时候进行重绘
+     * @param {Object} target 
+     */
+    _shouldRender(target) {
+        const activeObject = this._activeObject;
+
+        if (
+            !!activeObject !== !!target ||
+            (activeObject && target && (activeObject !== target))
+        ) {
+            // this covers: switch of target, from target to no target, selection of target
+            // multiSelection with key and mouse
+            return true;
+        }
+        // 鼠标点击了正在编辑的文本框 则不需要重新绘制
+        else if (activeObject && activeObject.isEditing) {
+            // if we mouse up/down over a editing textbox a cursor change,
+            // there is no need to re render
+            return false;
+        }
+        return false;
+    }
+    
 }

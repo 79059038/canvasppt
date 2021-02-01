@@ -104,7 +104,8 @@ export default {
         if (typeof skewY === 'undefined') {
             ({skewY} = this);
         }
-        const dimensions = this._getNonTransformedDimensions(); let dimX; let dimY;
+        const dimensions = this._getNonTransformedDimensions();
+        let dimX; let dimY;
         const noSkew = skewX === 0 && skewY === 0;
 
         if (this.strokeUniform) {
