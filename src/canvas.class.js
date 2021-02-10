@@ -4,7 +4,7 @@ import {createClass} from './util/lang_class';
 import StaticCanvas from './static_canvas.class';
 import {wrapElement, setStyle, makeElementUnselectable, addClass} from '@util/dom_mics.js';
 import {getPointer, isTouchEvent} from '@util/dom_event.js';
-import {transformPoint, invertTransform} from '@/util/misc.js';
+import {transformPoint, invertTransform, degreesToRadians, saveObjectTransform} from '@/util/misc.js';
 
 /**
  * contextTop - _createUpperCanvas 顶部canvas的context
@@ -48,6 +48,15 @@ const CanvasClass = createClass(StaticCanvas, {
 
     // 决定哪个按键是可以多选点击，即按住后点击开始进行多选
     selectionKey: 'shiftKey',
+
+    // 
+    centeredKey: 'altKey',
+
+    // 设置为true的时候，会使用中心点作为缩放变换的起点
+    centeredScaling: false,
+
+    // 设置为true的时候，会使用中心点作为旋转变换的起点
+    centeredRotation: false,
 
     // 是否允许选中整个组
     selection: true,
@@ -510,10 +519,232 @@ const CanvasClass = createClass(StaticCanvas, {
         if (currentActives.length) {
             this.fire('before:selection:cleared', { target: activeObject, e: e });
         }
-        // TODO 明日复明日
+        // 清空所选
         this._discardActiveObject(e);
         this._fireSelectionEvents(currentActives, e);
         return this;
+    },
+    
+    /**
+     * 根据老旧不同的选中数组 调用不同的canvas钩子事件
+     * @param {Array} oldObjects 
+     * @param {Event} e 
+     */
+    _fireSelectionEvents(oldObjects, e) {
+        let somethingChanged = false;
+        const objects = this.getActiveObjects();
+
+        const added = [];
+        const removed = [];
+        const opt = { e: e };
+        // 逐个调用元素的deselected事件 并添加至removed数组中
+        oldObjects.forEach(function(oldObject) {
+            if (objects.indexOf(oldObject) === -1) {
+                somethingChanged = true;
+                oldObject.fire('deselected', opt);
+                removed.push(oldObject);
+            }
+        });
+        // 遍历新的选中的 如果其同时存在于老的选中元素数组中 则调用元素的selected 并添加至add数组
+        // 一般而言 应该是空的
+        objects.forEach(function(object) {
+            if (oldObjects.indexOf(object) === -1) {
+                somethingChanged = true;
+                object.fire('selected', opt);
+                added.push(object);
+            }
+        });
+        // 如果新旧所选都不为空 则触发canvas的updated事件
+        if (oldObjects.length > 0 && objects.length > 0) {
+            opt.selected = added;
+            opt.deselected = removed;
+            // added for backward compatibility
+            opt.updated = added[0] || removed[0];
+            opt.target = this._activeObject;
+            somethingChanged && this.fire('selection:updated', opt);
+        }
+        // 如果旧为空 新的不为空  则触发canvas的created事件
+        else if (objects.length > 0) {
+            opt.selected = added;
+            // added for backward compatibility
+            opt.target = this._activeObject;
+            this.fire('selection:created', opt);
+        }
+        // 如果新的为空 则触发canvas的clear事件
+        else if (oldObjects.length > 0) {
+            opt.deselected = removed;
+            this.fire('selection:cleared', opt);
+        }
+      },
+
+    /**
+     * 丢弃之前的_activeObject
+     * @param {Event} e 
+     * @param {Object} object 
+     */
+    _discardActiveObject(e, object) {
+        var obj = this._activeObject;
+        if (obj) {
+          // onDeselect return TRUE to cancel selection;
+          if (obj.onDeselect({ e: e, object: object })) {
+            return false;
+          }
+          this._activeObject = null;
+        }
+        return true;
+    },
+
+    /**
+     * 设置当前object为当前canvas中唯一active object
+     * @param {Object} object 
+     * @param {Event} e 
+     */
+    setActiveObject(object, e) {
+        const currentActives = this.getActiveObjects();
+        this._setActiveObject(object, e);
+        this._fireSelectionEvents(currentActives, e);
+        return this;
+    },
+
+    /**
+     * 设置当前的_activeObject 选中元素
+     * @param {Object} object 
+     * @param {Event} e 
+     */
+    _setActiveObject(object, e) {
+        if (this._activeObject === object) {
+          return false;
+        }
+        if (!this._discardActiveObject(e, object)) {
+          return false;
+        }
+        if (object.onSelect({ e: e })) {
+          return false;
+        }
+        this._activeObject = object;
+        return true;
+    },
+
+    /**
+     * 根据命中不同的控制边框的点 设置origin
+     * @param {Object} target 
+     * @param {String} corner 
+     */
+    _getOriginFromCorner(target, corner) {
+        const origin = {
+            x: target.originX,
+            y: target.originY
+        };
+        // 选择的是左侧的点 会变更右边
+        if (corner === 'ml' || corner === 'tl' || corner === 'bl') {
+            origin.x = 'right';
+        }
+        else if (corner === 'mr' || corner === 'tr' || corner === 'br') {
+            origin.x = 'left';
+        }
+    
+        if (corner === 'tl' || corner === 'mt' || corner === 'tr') {
+            origin.y = 'bottom';
+        }
+        else if (corner === 'bl' || corner === 'mb' || corner === 'br') {
+            origin.y = 'top';
+        }
+        else if (corner === 'mtr') {
+            origin.x = 'center';
+            origin.y = 'center';
+        }
+        return origin;
+    },
+
+    /**
+     * 获取控制边框的actionName 一般为scale
+     * @param {Object} alreadySelected 
+     * @param {ControlClass} corner 
+     * @param {Event} e 
+     * @param {*} target 
+     */
+    _getActionFromCorner(alreadySelected, corner, e, target) {
+        if (!corner || !alreadySelected) {
+          return 'drag';
+        }
+        const control = target.controls[corner];
+        return control.getActionName(e, control, target);
+    },
+
+    // 重新设置当前的transform
+    _setupCurrentTransform(e, target, alreadySelected) {
+        if (!target) {
+            return;
+        }
+
+        const pointer = this.getPointer(e);
+        const corner = target.__corner;
+        const actionHandler = !!corner && target.controls[corner].getActionHandler();
+        const action = this._getActionFromCorner(alreadySelected, corner, e, target);
+        const origin = this._getOriginFromCorner(target, corner);
+        const altKey = e[this.centeredKey];
+        const transform = {
+            target,
+            action,
+            actionHandler,
+            corner,
+            scaleX: target.scaleX,
+            scaleY: target.scaleY,
+            skewX: target.skewX,
+            skewY: target.skewY,
+            // used by transation
+            offsetX: pointer.x - target.left,
+            offsetY: pointer.y - target.top,
+            originX: origin.x,
+            originY: origin.y,
+            ex: pointer.x,
+            ey: pointer.y,
+            lastX: pointer.x,
+            lastY: pointer.y,
+            // unsure they are useful anymore.
+            // left: target.left,
+            // top: target.top,
+            theta: degreesToRadians(target.angle),
+            // end of unsure
+            width: target.width * target.scaleX,
+            shiftKey: e.shiftKey,
+            altKey: altKey,
+            original: saveObjectTransform(target),
+        }
+        // TODO 明日复明日
+
+        if (this._shouldCenterTransform(target, action, altKey)) {
+            transform.originX = 'center';
+            transform.originY = 'center';
+        }
+        transform.original.originX = origin.x;
+        transform.original.originY = origin.y;
+        this._currentTransform = transform;
+        this._beforeTransform(e);
+    },
+
+    /**
+     * 元素的centeredScaling不能覆盖canvas的centeredScaling
+     * 该方法主要判断是否是从中心点开始变换
+     * @param {Object} target 
+     * @param {*} action 
+     * @param {*} altKey 
+     */
+    _shouldCenterTransform: function (target, action, altKey) {
+        if (!target) {
+          return;
+        }
+  
+        let centerTransform;
+  
+        if (action === 'scale' || action === 'scaleX' || action === 'scaleY') {
+          centerTransform = this.centeredScaling || target.centeredScaling;
+        }
+        else if (action === 'rotate') {
+          centerTransform = this.centeredRotation || target.centeredRotation;
+        }
+  
+        return centerTransform ? !altKey : altKey;
     },
 
     ...canvasEvent,

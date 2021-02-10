@@ -373,3 +373,31 @@ export function enlivenObjects(objects, callback, namespace, reviver) {
     });
 }
 
+/**
+ * 重置当前对象的state。不重置对象的top和left
+ * @param {Object} target 
+ */
+export function resetObjectTransform(target) {
+    target.scaleX = 1;
+    target.scaleY = 1;
+    target.skewX = 0;
+    target.skewY = 0;
+    target.flipX = false;
+    target.flipY = false;
+    target.rotate(0);
+}
+
+export function saveObjectTransform(target) {
+    return {
+        scaleX: target.scaleX,
+        scaleY: target.scaleY,
+        skewX: target.skewX,
+        skewY: target.skewY,
+        angle: target.angle,
+        left: target.left,
+        flipX: target.flipX,
+        flipY: target.flipY,
+        top: target.top
+    };
+}
+

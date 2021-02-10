@@ -137,5 +137,28 @@ export default {
         return this.strokeUniform
             ? {x: width + this.strokeWidth, y: height + this.strokeWidth}
             : {x: width, y: height};
+    },
+
+    setPositionByOrigin(pos, originX, originY) {
+        const center = this.translateToCenterPoint(pos, originX, originY)
+        const position = this.translateToOriginPoint(center, this.originX, this.originY);
+        // this.set('left', position.x);
+        this.left = position.x;
+        // this.set('top', position.y);
+        this.top = position.y;
+    },
+
+    /**
+     * 
+     * @param {Point} center 元素中心对应的点
+     * @param {String} originX left center right
+     * @param {String} originY top center bottom
+     */
+    translateToOriginPoint(center, originX, originY) {
+        var p = this.translateToGivenOrigin(center, 'center', 'center', originX, originY);
+        if (this.angle) {
+            return rotatePoint(p, center, degreesToRadians(this.angle));
+        }
+        return p;
     }
 };

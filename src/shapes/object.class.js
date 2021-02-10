@@ -76,7 +76,10 @@ const CObject = createClass(Common, {
     evented: true,
 
     // 绘制的时候先绘制fill还是stroke 二选一
-    paintFirst: 'fill'
+    paintFirst: 'fill',
+
+    // 当设置为false时 该元素不能被选中后修改属性 
+    selectable: true
 }, {
     type: 'object',
 
@@ -90,7 +93,11 @@ const CObject = createClass(Common, {
      */
     cacheProperties,
 
+    // 设置为false时 元素不展示控制边框 且不能被鼠标操作
+    hasControls: true,
+
     initialize() {
+        // fabric 只是做了下setOption 我在createObject先做了 这里留空吧
     },
 
     /**

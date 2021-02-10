@@ -1,4 +1,5 @@
 import {removeListener} from '../util/dom_event.js'
+import {isTouchEvent} from '../util/dom_event'
 
 // 事件监听passive为true表示监听内部不会调用preventDefault。浏览器默认touch相关
 // 为true，防止因为进入监听事件导致滚动轴滚动不可用
@@ -101,6 +102,7 @@ export default {
      */
     _onMouseDown: function (e) {
         this.__onMouseDown(e);
+        // TODO 明日复明日
         this._resetTransformEventData();
         var canvasElement = this.upperCanvasEl,
             eventTypePrefix = this._getEventPrefix();
@@ -180,6 +182,7 @@ export default {
         if (this._shouldClearSelection(e, target)) {
           this.discardActiveObject(e);
         }
+        // 是在多选操作
         else if (shouldGroup) {
           this._handleGrouping(e, target);
           target = this._activeObject;
@@ -196,18 +199,18 @@ export default {
         }
   
         if (target) {
-          var alreadySelected = target === this._activeObject;
+          const alreadySelected = target === this._activeObject;
           if (target.selectable) {
             this.setActiveObject(target, e);
           }
-          var corner = target._findTargetCorner(
+          const corner = target._findTargetCorner(
             this.getPointer(e, true),
-            fabric.util.isTouchEvent(e)
+            isTouchEvent(e)
           );
           target.__corner = corner;
           if (target === this._activeObject && (corner || !shouldGroup)) {
-            var control = target.controls[corner],
-                mouseDownHandler = control && control.getMouseDownHandler(e, target, control);
+            const control = target.controls[corner];
+            const mouseDownHandler = control && control.getMouseDownHandler(e, target, control);
             if (mouseDownHandler) {
               mouseDownHandler(e, target, control);
             }
@@ -285,6 +288,14 @@ export default {
             return false;
         }
         return false;
+    },
+
+    _beforeTransform() {
+        const t = this._currentTransform;
+        this.stateful && t.target.saveState();
+        this.fire('before:transform', {
+            e: e,
+            transform: t,
+        });
     }
-    
 }

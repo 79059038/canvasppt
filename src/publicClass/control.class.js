@@ -90,6 +90,7 @@ const ControlClass = createClass(Common, {
 }, {
     name: '',
 
+    mouseDownHandler: null,
     /**
      * 
      * @param {*} dim 
@@ -121,6 +122,24 @@ const ControlClass = createClass(Common, {
             // 默认为方形
             renderSquareControl.call(this, ctx, left, top, styleOverride, fabricObject);
         }
+    },
+
+    /**
+     * 返回 mouseDown 的handler
+     */
+    getMouseDownHandler: function(/* eventData, fabricObject, control */) {
+      return this.mouseDownHandler;
+    },
+
+    /**
+     * 返回 control 的actionHandler
+     */
+    getActionHandler: function(/* eventData, transformData, fabricObject */) {
+      return this.actionHandler;
+    },
+
+    getActionName(eventData, control /* fabricObject */) {
+      return control.actionName;
     }
 });
 

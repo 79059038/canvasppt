@@ -118,7 +118,7 @@ export function proxy(target, sourceKey, key) {
     Object.defineProperty(target, key, sharedPropertyDefinition);
 }
 
-function callSuper(...[options]) {
+function callSuper(...options) {
     const methodName = options[0];
     let parentMethod = null;
     let _this = this;
