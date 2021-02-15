@@ -190,7 +190,7 @@ export default {
      * @param {Object} pointer 鼠标点击的位置
      * @param {*} forTouch 是否来自于touch事件
      */
-    _findTargetCorner: function(pointer, forTouch) {
+    _findTargetCorner(pointer, forTouch) {
         // 如果没被控制 属于group 或者不属于被选中的对象 直接返回
         if (!this.hasControls || this.group || (!this.canvas || this.canvas._activeObject !== this)) {
           return false;

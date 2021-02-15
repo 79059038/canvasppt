@@ -140,6 +140,14 @@ const ControlClass = createClass(Common, {
 
     getActionName(eventData, control /* fabricObject */) {
       return control.actionName;
+    },
+
+    getMouseUpHandler() {
+      return this.mouseUpHandler;
+    },
+
+    cursorStyleHandler(eventData, control /* fabricObject */) {
+        return control.cursorStyle;
     }
 });
 

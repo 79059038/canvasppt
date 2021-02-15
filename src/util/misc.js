@@ -1,4 +1,4 @@
-import Point from '../point.class';
+import Point from '../publicClass/point.class';
 import {iMatrix} from '../HEADER';
 import {min, max} from './lang_array';
 import Pattern from '../pattern.class';
@@ -399,5 +399,18 @@ export function saveObjectTransform(target) {
         flipY: target.flipY,
         top: target.top
     };
+}
+
+/**
+ * 在两点之间绘制虚线  后续再写
+ * @param {CanvasRenderingContext2D} ctx 
+ * @param {Number} x 
+ * @param {Number} y 
+ * @param {Number} x2 
+ * @param {Number} y2 
+ * @param {Array} da 
+ */
+export function drawDashedLine(ctx, x, y, x2, y2, da) {
+
 }
 

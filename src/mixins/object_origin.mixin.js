@@ -1,4 +1,4 @@
-import Point from '../point.class';
+import Point from '../publicClass/point.class';
 import {rotatePoint, degreesToRadians, sizeAfterTransform} from '../util/misc';
 
 const originXOffset = {

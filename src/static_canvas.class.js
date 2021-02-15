@@ -1,6 +1,6 @@
 import Common from './mixins/common.class.mixin';
 import ImageClass from './shapes/image.class';
-import Point from './point.class';
+import Point from './publicClass/point.class';
 import {createClass} from './util/lang_class';
 import {allCanvasList} from './public';
 import {getById, addClass, loadImage, getElementOffset} from './util/dom_mics';

@@ -2,9 +2,12 @@ import canvasEvent from './mixins/canvas_events.mixin';
 import canvasGrouping from './mixins/object_geometry.mixin';
 import {createClass} from './util/lang_class';
 import StaticCanvas from './static_canvas.class';
+import CObject from './shapes/object.class';
 import {wrapElement, setStyle, makeElementUnselectable, addClass} from '@util/dom_mics.js';
 import {getPointer, isTouchEvent} from '@util/dom_event.js';
-import {transformPoint, invertTransform, degreesToRadians, saveObjectTransform} from '@/util/misc.js';
+import {transformPoint, invertTransform, degreesToRadians, saveObjectTransform, drawDashedLine} from '@/util/misc.js';
+
+const STROKE_OFFSET = 0.5
 
 /**
  * contextTop - _createUpperCanvas 顶部canvas的context
@@ -60,6 +63,24 @@ const CanvasClass = createClass(StaticCanvas, {
 
     // 是否允许选中整个组
     selection: true,
+
+    // 默认的鼠标样式
+    defaultCursor: 'default',
+
+    // 设置鼠标悬浮时的样式
+    hoverCursor: 'move',
+
+    // selection的颜色
+    selectionColor: 'rgba(100, 100, 255, 0.3)',
+
+    // selection元素边框线的宽度
+    selectionLineWidth: 1,
+
+    // selection元素边框的颜色
+    selectionBorderColor: 'rgba(255, 255, 255, 0.3)',
+
+    // selection元素边框的dash
+    selectionDashArray: [],
 
     initialize(options, el) {
         // 在static父类里
@@ -745,6 +766,112 @@ const CanvasClass = createClass(StaticCanvas, {
         }
   
         return centerTransform ? !altKey : altKey;
+    },
+
+    /**
+     * 设置canvas的鼠标样式
+     * @param {String} value 
+     */
+    setCursor(value) {
+        this.upperCanvasEl.style.cursor = value;
+    },
+
+    /**
+     * 只渲染top的canvas
+     * 也用来渲染选中group的边框
+     */
+    renderTop() {
+        const ctx = this.contextTop;
+        this.clearContext(ctx);
+        this.renderTopLayer(ctx);
+        this.fire('after:render');
+        return this;
+    },
+
+    renderTopLayer(ctx) {
+        ctx.save();
+        // 类似画板功能 后续再做
+        if (this.isDrawingMode && this._isCurrentlyDrawing) {
+            this.freeDrawingBrush && this.freeDrawingBrush._render();
+            this.contextTopDirty = true;
+        }
+        // we render the top context - last object
+        if (this.selection && this._groupSelector) {
+            this._drawSelection(ctx);
+            this.contextTopDirty = true;
+        }
+        ctx.restore();
+    },
+
+    // 绘制选择的元素边框
+    _drawSelection: function (ctx) {
+        const groupSelector = this._groupSelector;
+        const left = groupSelector.left,
+        const top = groupSelector.top,
+        const aleft = Math.abs(left),
+        const atop = Math.abs(top);
+  
+        if (this.selectionColor) {
+            ctx.fillStyle = this.selectionColor;
+  
+            ctx.fillRect(
+                groupSelector.ex - ((left > 0) ? 0 : -left),
+                groupSelector.ey - ((top > 0) ? 0 : -top),
+                aleft,
+                atop
+            );
+        }
+  
+        if (!this.selectionLineWidth || !this.selectionBorderColor) {
+          return;
+        }
+        ctx.lineWidth = this.selectionLineWidth;
+        ctx.strokeStyle = this.selectionBorderColor;
+  
+        // selection border
+        if (this.selectionDashArray.length > 1 && !supportLineDash) {
+  
+            const px = groupSelector.ex + STROKE_OFFSET - ((left > 0) ? 0 : aleft);
+            const py = groupSelector.ey + STROKE_OFFSET - ((top > 0) ? 0 : atop);
+  
+            ctx.beginPath();
+  
+            drawDashedLine(ctx, px, py, px + aleft, py, this.selectionDashArray);
+            drawDashedLine(ctx, px, py + atop - 1, px + aleft, py + atop - 1, this.selectionDashArray);
+            drawDashedLine(ctx, px, py, px, py + atop, this.selectionDashArray);
+            drawDashedLine(ctx, px + aleft - 1, py, px + aleft - 1, py + atop, this.selectionDashArray);
+  
+            ctx.closePath();
+            ctx.stroke();
+        }
+        else {
+            CObject.prototype._setLineDash.call(this, ctx, this.selectionDashArray);
+            ctx.strokeRect(
+                groupSelector.ex + STROKE_OFFSET - ((left > 0) ? 0 : aleft),
+                groupSelector.ey + STROKE_OFFSET - ((top > 0) ? 0 : atop),
+                aleft,
+                atop
+            );
+        }
+    },
+
+    /**
+     * translate 元素
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+    _translateObject: function (x, y) {
+        const transform = this._currentTransform;
+        const target = transform.target;
+        const newLeft = x - transform.offsetX;
+        const newTop = y - transform.offsetY;
+        // 部分元素可能是被锁定不可移动
+        const moveX = !target.get('lockMovementX') && target.left !== newLeft,
+        const moveY = !target.get('lockMovementY') && target.top !== newTop;
+  
+        moveX && (target.left = newLeft);
+        moveY && (target.top = newTop);
+        return moveX || moveY;
     },
 
     ...canvasEvent,

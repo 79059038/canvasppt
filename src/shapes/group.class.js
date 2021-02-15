@@ -1,6 +1,6 @@
 import {createClass} from '../util/lang_class';
 import ObjectClass from './object.class'
-import Point from '../point.class';
+import Point from '../publicClass/point.class';
 import {qrDecompose, resetObjectTransform} from '../util/misc';
 import {min, max} from '../util/lang_array.js'
 

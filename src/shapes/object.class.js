@@ -3,7 +3,8 @@ import {NUM_FRACTION_DIGITS} from '../public';
 import {createClass} from '../util/lang_class';
 import Common from '../mixins/common.class.mixin';
 import origin from '../mixins/object_origin.mixin';
-import geometry from '../mixins/object_geometry.mixin.js';
+import geometry from '../mixins/object_geometry.mixin';
+import stateful from '../mixins/stateful.mixin';
 import {devicePixelRatio, browserShadowBlurConstant, iMatrix, PPTCanvas} from '../HEADER';
 import {clone} from '../util/lang_class'
 import {enlivenPatterns} from '../util/misc'
@@ -95,6 +96,9 @@ const CObject = createClass(Common, {
 
     // 设置为false时 元素不展示控制边框 且不能被鼠标操作
     hasControls: true,
+
+    // 设置鼠标悬浮在这个元素时的光标样式
+    hoverCursor: null,
 
     initialize() {
         // fabric 只是做了下setOption 我在createObject先做了 这里留空吧
@@ -468,7 +472,8 @@ const CObject = createClass(Common, {
     },
     // 结构object_origin中的公共方法
     ...origin,
-    ...geometry
+    ...geometry,
+    ...stateful
 });
 
 

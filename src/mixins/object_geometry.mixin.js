@@ -1,4 +1,5 @@
-import Point from '../point.class';
+import Point from '../publicClass/point.class';
+import Intersection from '../publicClass/intersection.class'
 import {multiplyTransformMatrices as multiplyMatrices, calcRotateMatrix, transformPoint, degreesToRadians, sin as sinFun, cos as cosFun, composeMatrix, sizeAfterTransform} from '../util/misc';
 
 function arrayFromCoords(coords) {
@@ -32,7 +33,8 @@ export default {
         if (!this.canvas) {
             return false;
         }
-        const pointTL = this.canvas.vptCoords.tl; const pointBR = this.canvas.vptCoords.br;
+        const pointTL = this.canvas.vptCoords.tl;
+        const pointBR = this.canvas.vptCoords.br;
         const points = this.getCoords(true, calculate);
         // if some point is on screen, the object is on screen.
         if (points.some(point => point.x <= pointBR.x && point.x >= pointTL.x
@@ -383,5 +385,22 @@ export default {
         };
   
         return lines;
+    },
+
+    /**
+     * 判断元素与由两个点组成的矩形区域是否相交
+     * @param {Object} pointTL 矩形左上点
+     * @param {Object} pointBR 矩形右下点
+     * @param {Boolean} absolute 没有经过viewportTransform转换
+     * @param {Boolean} calculate 不使用oCoords而使用当前点
+     */
+    intersectsWithRect(pointTL, pointBR, absolute, calculate) {
+        const coords = this.getCoords(absolute, calculate);
+        const intersection = Intersection.intersectPolygonRectangle(
+            coords,
+            pointTL,
+            pointBR
+          );
+        return intersection.status === 'Intersection';
     }
 };
