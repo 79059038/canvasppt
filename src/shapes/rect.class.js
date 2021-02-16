@@ -14,7 +14,7 @@ const RectClass = createClass(ObjectClass, {
 }, {
     type: 'rect',
 
-    cacheProperties: ObjectClass.prototype.cacheProperties.concat('rx', 'ry'),
+    cacheProperties: ObjectClass.prototype.__static_cacheProperties.concat('rx', 'ry'),
 
     /**
      * 矩形初始化函数

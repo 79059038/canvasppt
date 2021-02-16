@@ -1,7 +1,6 @@
 import Point from '../publicClass/point.class';
 import {iMatrix} from '../HEADER';
 import {min, max} from './lang_array';
-import Pattern from '../pattern.class';
 import {camelize} from './lang_string';
 import {PPTCanvas} from '../HEADER.js'
 
@@ -325,7 +324,7 @@ export function enlivenPatterns(patterns, callback) {
 
     patterns.forEach(function (p, index) {
       if (p && p.source) {
-        new Pattern(p, function(pattern) {
+        new PPTCanvas.Pattern(p, function(pattern) {
           enlivenedPatterns[index] = pattern;
           onLoaded();
         });

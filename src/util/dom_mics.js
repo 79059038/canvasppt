@@ -63,9 +63,9 @@ export function getById(id) {
 }
 
 /**
- *  为dom增加class
- * @param {dom} element
- * @param {String} className
+ * 将给定dom添加相应的class
+ * @param {Element} element dom对象
+ * @param {String} className class名称
  */
 export function addClass(element, className) {
     if (element && element.className.indexOf(className) === -1) {
@@ -219,17 +219,6 @@ export function makeElementUnselectable(element) {
 
 function falseFunction() {
     return false;
-}
-
-/**
- * 将给定dom添加相应的class
- * @param {Element} element dom对象
- * @param {String} className class名称
- */
-function addClass(element, className) {
-    if (element && (' ' + element.className + ' ').indexOf(' ' + className + ' ') === -1) {
-      element.className += (element.className ? ' ' : '') + className;
-    }
 }
 
 /**

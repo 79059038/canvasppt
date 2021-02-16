@@ -1,5 +1,5 @@
 import CanvasPpt from '@canvasppt';
-const canvas = new CanvasPpt.StaticCanvas({width: 960, height: 720}, 'canvas');
+const canvas = new CanvasPpt.Canvas({width: 960, height: 720}, 'canvas');
 
 canvas.add(new CanvasPpt.RectClass({
     top: 100,

@@ -2,6 +2,8 @@ import {createClass} from './util/lang_class';
 import Object from './shapes/object.class';
 import {createImage, loadImage} from './util/dom_mics';
 
+let uid = 0;
+
 const Pattern = createClass({}, {}, {
     /**
      * 绘制图案的方式
@@ -27,6 +29,6 @@ const Pattern = createClass({}, {}, {
       }
     }
 
-});
+}, 'Pattern');
 
 export default Pattern;

@@ -25,6 +25,10 @@ const StaticCanvas = createClass(Common, {
     clipPath: null,
     // 检测当前canvas是否正在渲染
     isRendering: 0,
+
+    // 当它为true时 将根据devicePixelRatio缩放呈现更好的视觉效果
+    enableRetinaScaling: true,
+
     // 类初始化方法
     initialize(options, el) {
         // 供外部调用整体渲染的方法绑定this
@@ -58,7 +62,7 @@ const StaticCanvas = createClass(Common, {
         addClass(this.lowerCanvasEl, 'lower-canvas');
 
         if (this.interactive) {
-            this.applyCanvasStyle(this.lowerCanvasEl);
+            this._applyCanvasStyle(this.lowerCanvasEl);
         }
 
         this.contextContainer = this.lowerCanvasEl.getContext('2d');
@@ -223,7 +227,29 @@ const StaticCanvas = createClass(Common, {
 
     getRetinaScaling() {
         return devicePixelRatio;
-    }
+    },
+
+    _isRetinaScaling() {
+        return (devicePixelRatio !== 1 && this.enableRetinaScaling);
+    },
+
+    _initRetinaScaling: function() {
+        if (!this._isRetinaScaling()) {
+          return;
+        }
+
+        this.__initRetinaScaling(devicePixelRatio, this.lowerCanvasEl, this.contextContainer);
+        if (this.upperCanvasEl) {
+          this.__initRetinaScaling(devicePixelRatio, this.upperCanvasEl, this.contextTop);
+        }
+    },
+
+    // 放大再缩小
+    __initRetinaScaling(scaleRatio, canvas, context) {
+        canvas.setAttribute('width', this.width * scaleRatio);
+        canvas.setAttribute('height', this.height * scaleRatio);
+        context.scale(scaleRatio, scaleRatio);
+    },
 });
 
 export default StaticCanvas;

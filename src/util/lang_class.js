@@ -28,6 +28,8 @@ export function createClass(parent, extendOptions, extendFunction, className) {
     // 方便子类调用父级
     child.prototype.callSuper = callSuper;
 
+    child.shallowOptions = {};
+
     // 合并该类型function的option属性
     child.options = mergeOptions(
         parent.options,

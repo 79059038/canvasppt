@@ -122,7 +122,7 @@ const CanvasClass = createClass(StaticCanvas, {
     _createUpperCanvas: function () {
         const lowerCanvasClass = this.lowerCanvasEl.className.replace(/\s*lower-canvas\s*/, '')
         const lowerCanvasEl = this.lowerCanvasEl
-        const upperCanvasEl = this.upperCanvasEl;
+        let upperCanvasEl = this.upperCanvasEl;
   
         // there is no need to create a new upperCanvas element if we have already one.
         if (upperCanvasEl) {
@@ -155,7 +155,7 @@ const CanvasClass = createClass(StaticCanvas, {
      * 设置canvas的样式
      * @param {Element} element 
      */
-    _applyCanvasStyle: function (element) {
+    _applyCanvasStyle(element) {
         let width = this.width || element.width,
             height = this.height || element.height;
   
@@ -388,7 +388,7 @@ const CanvasClass = createClass(StaticCanvas, {
         // 返回已选择的对象数组
         const aObjects = this.getActiveObjects();
         let activeTarget;
-        let activeTargetSubs,
+        let activeTargetSubs;
         const isTouch = isTouchEvent(e);
 
         // 首先检查 当前group。active group不像是一般的group一样检查子元素
@@ -806,9 +806,9 @@ const CanvasClass = createClass(StaticCanvas, {
     // 绘制选择的元素边框
     _drawSelection: function (ctx) {
         const groupSelector = this._groupSelector;
-        const left = groupSelector.left,
-        const top = groupSelector.top,
-        const aleft = Math.abs(left),
+        const left = groupSelector.left;
+        const top = groupSelector.top;
+        const aleft = Math.abs(left);
         const atop = Math.abs(top);
   
         if (this.selectionColor) {
@@ -866,7 +866,7 @@ const CanvasClass = createClass(StaticCanvas, {
         const newLeft = x - transform.offsetX;
         const newTop = y - transform.offsetY;
         // 部分元素可能是被锁定不可移动
-        const moveX = !target.get('lockMovementX') && target.left !== newLeft,
+        const moveX = !target.get('lockMovementX') && target.left !== newLeft;
         const moveY = !target.get('lockMovementY') && target.top !== newTop;
   
         moveX && (target.left = newLeft);

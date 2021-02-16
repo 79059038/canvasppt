@@ -1,4 +1,4 @@
-import {removeListener} from '../util/dom_event.js'
+import {removeListener, addListener} from '../util/dom_event.js'
 import {isTouchEvent} from '../util/dom_event'
 
 // 事件监听passive为true表示监听内部不会调用preventDefault。浏览器默认touch相关
@@ -9,7 +9,6 @@ const addEventOptions = {passive: false}
 const RIGHT_CLICK = 3
 const MIDDLE_CLICK = 2
 const LEFT_CLICK = 1
-const addEventOptions = { passive: false };
 
 function checkClick(e, value) {
   return e.button && (e.button === value - 1);
@@ -180,7 +179,7 @@ export default {
 
     // 在mousemove时触发的事件
     _transformObject(e) {
-        const pointer = this.getPointer(e),
+        const pointer = this.getPointer(e);
         const transform = this._currentTransform;
 
         transform.reset = false;
@@ -224,8 +223,8 @@ export default {
      */
     _fireOverOutEvents(target, e) {
         const _hoveredTarget = this._hoveredTarget;
-        const _hoveredTargets = this._hoveredTargets
-        const targets = this.targets,
+        const _hoveredTargets = this._hoveredTargets;
+        const targets = this.targets;
         const length = Math.max(_hoveredTargets.length, targets.length);
         this.fireSyntheticInOutEvents(target, e, {
           oldTarget: _hoveredTarget,
@@ -476,7 +475,7 @@ export default {
         }
         let hoverCursor = target.hoverCursor || this.hoverCursor;
         const activeSelection = this._activeObject && this._activeObject.type === 'activeSelection' ?
-            this._activeObject : null,
+            this._activeObject : null;
         // 存在已选中group时只展示适当的corner
         const corner = (!activeSelection || !activeSelection.contains(target))
             //针对touch设备的特殊处理。经常出现undefined。如果使用cursor 则需要更大的交互区域 手点击不精准

@@ -1,5 +1,6 @@
-import {getScrollLeftTop} from './dom_mics.js'
+import {getScrollLeftTop} from './dom_mics.js';
 
+const couldUseAttachEvent =  document.createElement('div').attachEvent
 const touchEvents = ['touchstart', 'touchmove', 'touchend'];
 
 /**
@@ -12,6 +13,10 @@ const touchEvents = ['touchstart', 'touchmove', 'touchend'];
 export function removeListener(element, eventName, handler, options) {
     element && element.removeEventListener(eventName, handler, options);
 }
+
+export function addListener(element, eventName, handler, options) {
+    element && element.addEventListener(eventName, handler, couldUseAttachEvent ? false : options);
+};
 
 // 触摸事件中changedTouches返回list 表示触摸的点 
 // touchstart touchmove touchend 的changedTouches含义不同

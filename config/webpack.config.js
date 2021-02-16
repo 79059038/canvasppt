@@ -16,7 +16,9 @@ module.exports = {
     devtool: 'inline-source-map',
     devServer: {
         contentBase: path.join(__dirname, '../html_dist'),
-        port: 9000
+        port: 9000,
+        host: '0.0.0.0',
+        hot: true
     },
     resolve: {
         alias: {

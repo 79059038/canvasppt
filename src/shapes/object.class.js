@@ -1,12 +1,12 @@
-import {toFixed, degreesToRadians, qrDecompose, multiplyTransformMatrices} from '../util/misc';
+import {devicePixelRatio, browserShadowBlurConstant, iMatrix} from '../HEADER';
 import {NUM_FRACTION_DIGITS} from '../public';
+import {toFixed, degreesToRadians, qrDecompose, multiplyTransformMatrices} from '../util/misc';
 import {createClass} from '../util/lang_class';
 import Common from '../mixins/common.class.mixin';
 import origin from '../mixins/object_origin.mixin';
 import geometry from '../mixins/object_geometry.mixin';
 import stateful from '../mixins/stateful.mixin';
-import {devicePixelRatio, browserShadowBlurConstant, iMatrix, PPTCanvas} from '../HEADER';
-import {clone} from '../util/lang_class'
+import {clone} from '../util/lang_object'
 import {enlivenPatterns} from '../util/misc'
 
 const statePropertiesStr = `top left width height scaleX scaleY flipX flipY originX originY transformMatrix
@@ -15,7 +15,7 @@ const statePropertiesStr = `top left width height scaleX scaleY flipX flipY orig
     skewX skewY fillRule paintFirst clipPath strokeUniform`;
 const stateProperties = statePropertiesStr.split('');
 
-const cacheProperties = `fill stroke strokeWidth strokeDashArray width height paintFirst 
+const __static_cacheProperties = `fill stroke strokeWidth strokeDashArray width height paintFirst 
 strokeUniform  strokeLineCap strokeDashOffset strokeLineJoin strokeMiterLimit backgroundColor clipPath`.split(' ');
 
 
@@ -92,7 +92,7 @@ const CObject = createClass(Common, {
     /**
      * 检测元素对象需要刷新时需要判断的属性列表
      */
-    cacheProperties,
+    __static_cacheProperties,
 
     // 设置为false时 元素不展示控制边框 且不能被鼠标操作
     hasControls: true,
@@ -479,7 +479,7 @@ const CObject = createClass(Common, {
 
 CObject.__uid = 0;
 CObject._fromObject = function(className, object, callback, extraParam) {
-    var klass = PPTCanvas[className];
+    // var klass = PPTCanvas[className];
     object = clone(object, true);
     enlivenPatterns([object.fill, object.stroke], function(patterns) {
       if (typeof patterns[0] !== 'undefined') {

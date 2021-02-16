@@ -303,10 +303,10 @@ export default {
 
     // 检查一个点是否在当前对象中
     containsPoint: function(point, lines, absolute, calculate) {
-        const coords = this._getCoords(absolute, calculate),
+        const coords = this._getCoords(absolute, calculate);
             // 图形的四边线段的坐标
-            lines = lines || this._getImageLines(coords),
-            xPoints = this._findCrossPoints(point, lines);
+        lines = lines || this._getImageLines(coords);
+        const xPoints = this._findCrossPoints(point, lines);
         // if xPoints is odd then point is inside the object
         return (xPoints !== 0 && xPoints % 2 === 1);
     },

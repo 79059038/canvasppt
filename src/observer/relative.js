@@ -1,7 +1,22 @@
-import {track, trigger, TrackOpTypes, TrackOpTypes, ITERATE_KEY} from './effect';
+import {track, trigger, TrackOpTypes, ITERATE_KEY} from './effect';
 import {isIntegerKey, isArray} from '@/util/lang_array.js'
 import {hasOwn} from '@/util/lang_object.js'
 import {toTypeString} from '@/util/index.js'
+
+// this指代proxy对象
+const mutableInstrumentations = {
+    get(key) {
+        return collectget(this, key)
+    },
+    get size() {
+        return size(this)
+    },
+    has,
+    add,
+    set: collectset,
+    delete: deleteEntry,
+    clear,
+}
 
 // 映射后给proxy添加的个性化属性 主要用来区分不同响应式对象
 export const  ReactiveFlags = {
@@ -66,8 +81,6 @@ const toReactive = (value) => isObject(value) ? reactive(value) : value
 // 工具方法 判断是否是map
 export const isMap = (val) => toTypeString(val) === 'Map'
 
-// 记录关联映射，才用WeakMap 方便垃圾回收
-export const reactiveMap = new WeakMap();
 
 /**
  * vue使用柯里化 产生不同的get函数 这里就暂时不搞这么复杂，默认全部都可改 全部深层次监听
@@ -187,7 +200,7 @@ function size(target) {
     return Reflect.get(target, 'size', target)
 }
 
-function has(this, key) {
+function has(key) {
     const target = this[ReactiveFlags.RAW]
     const rawTarget = toRaw(target)
     const rawKey = toRaw(key)
@@ -201,7 +214,7 @@ function has(this, key) {
       : target.has(key) || target.has(rawKey)
 }
 
-function add(this, value) {
+function add(value) {
     value = toRaw(value)
     const target = toRaw(this)
     const proto = getProto(target)
@@ -266,22 +279,8 @@ function clear() {
       trigger(target, TriggerOpTypes.CLEAR, undefined, undefined, undefined)
     }
     return result
-  }
-
-// this指代proxy对象
-const mutableInstrumentations = {
-    get(key) {
-      return collectget(this, key)
-    },
-    get size() {
-      return size(this)
-    },
-    has,
-    add,
-    set: collectset,
-    delete: deleteEntry,
-    clear,
 }
+
 
 /**
  * 创建映射对象

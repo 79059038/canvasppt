@@ -15,7 +15,8 @@ function _isEqual(origValue, currentValue, firstPass) {
         return true;
     }
     else if (origValue && typeof origValue === 'object') {
-        const keys = Object.keys(origValue), key;
+        const keys = Object.keys(origValue);
+        let key;
         if (!currentValue ||
             typeof currentValue !== 'object' ||
             (!firstPass && keys.length !== Object.keys(currentValue).length)
