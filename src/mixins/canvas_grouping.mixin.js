@@ -83,18 +83,18 @@ export default {
     },
 
     _groupSelectedObjects(e) {
-        const group = this._collectObjects(e),
-            aGroup;
+        const group = this._collectObjects(e);
+        let aGroup;
   
         // 仅有一个元素时不创建group
         if (group.length === 1) {
-          this.setActiveObject(group[0], e);
+            this.setActiveObject(group[0], e);
         }
         else if (group.length > 1) {
-          aGroup = new ActiveSelection(group.reverse(), {
-            canvas: this
-          });
-          this.setActiveObject(aGroup, e);
+            aGroup = new ActiveSelection(group.reverse(), {
+                canvas: this
+            });
+            this.setActiveObject(aGroup, e);
         }
     },
 
@@ -102,7 +102,7 @@ export default {
         let group = [];
         let currentObject;
         const x1 = this._groupSelector.ex;
-        const y1 = this._groupSelector.ey,
+        const y1 = this._groupSelector.ey;
         const x2 = x1 + this._groupSelector.left;
         const y2 = y1 + this._groupSelector.top;
         const selectionX1Y1 = new Point(min(x1, x2), min(y1, y2));

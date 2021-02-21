@@ -20,7 +20,8 @@ export default {
             return this;
         }
         ctx.save();
-        const center = this.getCenterPoint(); const wh = this.calculateCurrentDimensions();
+        const center = this.getCenterPoint();
+        const wh = this.calculateCurrentDimensions();
         const vpt = this.canvas.viewportTransform;
         ctx.translate(center.x, center.y);
         ctx.scale(1 / vpt[0], 1 / vpt[3]);

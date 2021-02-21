@@ -1,5 +1,5 @@
 import canvasEvent from './mixins/canvas_events.mixin';
-import canvasGrouping from './mixins/object_geometry.mixin';
+import canvasGrouping from './mixins/canvas_grouping.mixin.js';
 import {createClass} from './util/lang_class';
 import StaticCanvas from './static_canvas.class';
 import CObject from './shapes/object.class';
@@ -23,6 +23,8 @@ const CanvasClass = createClass(StaticCanvas, {
     // 当属性为false时，该元素会被渲染到顶层，且成为被选中元素
     preserveObjectStacking: false
 }, {
+
+    _private_type: 'Canvas',
 
     _currentTransform: null,
 
@@ -82,6 +84,12 @@ const CanvasClass = createClass(StaticCanvas, {
     // selection元素边框的dash
     selectionDashArray: [],
 
+    // 用于记录鼠标悬浮的目标元素
+    _hoveredTarget: null,
+
+    // 记录悬浮元素嵌套层级关系
+    _hoveredTargets: [],
+
     initialize(options, el) {
         // 在static父类里
         this._initStatic(options, el)
@@ -101,7 +109,7 @@ const CanvasClass = createClass(StaticCanvas, {
         // 高清屏时的问题。devicePixelRatio不为1
         this._initRetinaScaling();
         // 创建PencilBrush对象
-        this.freeDrawingBrush = fabric.PencilBrush && new fabric.PencilBrush(this);
+        // this.freeDrawingBrush = fabric.PencilBrush && new fabric.PencilBrush(this);
         // 计算canvas 相较于canvas偏移量是多少
         this.calcOffset();
     },
@@ -322,7 +330,7 @@ const CanvasClass = createClass(StaticCanvas, {
      * @param {Object} target 即被测试的元素对象
      * @param {Object} point 要检查的点的坐标
      */
-    containsPoint: function (e, target, point) {
+    containsPoint(e, target, point) {
         const ignoreZoom = true;
         // 如果传入的是事件  则先获取事件中点的x y坐标
         const pointer = point || this.getPointer(e, ignoreZoom);
@@ -481,7 +489,7 @@ const CanvasClass = createClass(StaticCanvas, {
      * @param {Event} e 
      */
     _isSelectionKeyPressed(e) {
-        const selectionKeyPressed = false;
+        let selectionKeyPressed = false;
 
         if (Array.isArray(this.selectionKey)) {
             selectionKeyPressed = !!this.selectionKey.find(key => e[key] === true);
@@ -866,8 +874,8 @@ const CanvasClass = createClass(StaticCanvas, {
         const newLeft = x - transform.offsetX;
         const newTop = y - transform.offsetY;
         // 部分元素可能是被锁定不可移动
-        const moveX = !target.get('lockMovementX') && target.left !== newLeft;
-        const moveY = !target.get('lockMovementY') && target.top !== newTop;
+        const moveX = !target.lockMovementX && target.left !== newLeft;
+        const moveY = !target.lockMovementY && target.top !== newTop;
   
         moveX && (target.left = newLeft);
         moveY && (target.top = newTop);

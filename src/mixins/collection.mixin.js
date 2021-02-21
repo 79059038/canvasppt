@@ -1,6 +1,16 @@
 export default {
     _objects: [],
 
+    add(...objects) {
+        this._objects = this._objects.concat(objects);
+
+        for (let i = 0, length = objects.length; i < length; i++) {
+          this._onObjectAdded(objects[i]);
+        }
+
+        this.renderCanvas(this.contextContainer, this._objects);
+    },
+
     remove(...deleteObjs) {
         const objects = this._objects;
         let index;

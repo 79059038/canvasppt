@@ -1,4 +1,5 @@
 import Common from './mixins/common.class.mixin';
+import Collection from './mixins/collection.mixin';
 import ImageClass from './shapes/image.class';
 import Point from './publicClass/point.class';
 import {createClass} from './util/lang_class';
@@ -11,6 +12,8 @@ const StaticCanvas = createClass(Common, {
     width: 120,
     height: 90,
 
+    backgroundColor: 'rgb(179, 231, 233)',
+
     /**
      * 指示是否将控制边框绘制在图像之上
      */
@@ -18,7 +21,8 @@ const StaticCanvas = createClass(Common, {
 },
 {
 
-    _objects: [],
+    _private_type: 'StaticCanvas',
+
     // 当前 聚焦的viewport 的transformation
     viewportTransform: iMatrix.concat(),
     // 暂时没看懂啥意思
@@ -66,13 +70,6 @@ const StaticCanvas = createClass(Common, {
         }
 
         this.contextContainer = this.lowerCanvasEl.getContext('2d');
-    },
-    add(...objects) {
-        this._objects = this._objects.concat(objects);
-        objects.forEach(item => {
-            item.canvas = this;
-        });
-        this.renderCanvas(this.contextContainer, this._objects);
     },
     // 初始化options
     setCanvasStyle() {
@@ -213,6 +210,18 @@ const StaticCanvas = createClass(Common, {
     },
 
     /**
+     * 在canvas添加元素时调用的方法
+     * @param {fabric.Object} obj 
+     */
+    _onObjectAdded(obj) {
+        this.stateful && obj.setupState();
+        obj.canvas = this;
+        obj.setCoords();
+        this.fire('object:added', { target: obj });
+        obj.fire('added');
+    },
+
+    /**
      * 开始渲染当前canvas中所属所有元素
      * @param {*} ctx - canvas的上下文
      * @param {ObjectClass} objects - canvas所有元素对象 父类为ObjectClass
@@ -250,6 +259,12 @@ const StaticCanvas = createClass(Common, {
         canvas.setAttribute('height', this.height * scaleRatio);
         context.scale(scaleRatio, scaleRatio);
     },
+
+    getZoom: function () {
+        return this.viewportTransform[0];
+    },
+
+    ...Collection
 });
 
 export default StaticCanvas;

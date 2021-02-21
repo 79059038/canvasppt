@@ -413,3 +413,8 @@ export function drawDashedLine(ctx, x, y, x2, y2, da) {
 
 }
 
+// 弧度转角度
+export function radiansToDegrees(radians) {
+    return radians / PiBy180;
+}
+

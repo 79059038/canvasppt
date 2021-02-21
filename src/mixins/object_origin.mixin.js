@@ -160,5 +160,29 @@ export default {
             return rotatePoint(p, center, degreesToRadians(this.angle));
         }
         return p;
+    },
+
+    /**
+     * 返回点在loacl坐标系坐标 即相对于元素内部坐标
+     * @param {fabric.Point} point 点在global坐标系坐标
+     * @param {String} originX 
+     * @param {String} originY 
+     */
+    toLocalPoint(point, originX, originY) {
+        const center = this.getCenterPoint();
+        let p, p2;
+
+        if (typeof originX !== 'undefined' && typeof originY !== 'undefined' ) {
+            p = this.translateToGivenOrigin(center, 'center', 'center', originX, originY);
+        }
+        else {
+            p = new Point(this.left, this.top);
+        }
+
+        p2 = new Point(point.x, point.y);
+        if (this.angle) {
+            p2 = rotatePoint(p2, center, -degreesToRadians(this.angle));
+        }
+        return p2.subtractEquals(p);
     }
 };

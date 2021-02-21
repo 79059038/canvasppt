@@ -83,9 +83,9 @@ const Group = createClass(ObjectClass, {}, {
     },
 
     _updateObjectsCoords(center) {
-        const center = center || this.getCenterPoint();
+        const centerTemp = center || this.getCenterPoint();
         for (var i = this._objects.length; i--; ){
-          this._updateObjectCoords(this._objects[i], center);
+          this._updateObjectCoords(this._objects[i], centerTemp);
         }
     },
 
@@ -114,7 +114,7 @@ const Group = createClass(ObjectClass, {}, {
      * @param {Boolean} onlyWidthHeight 
      */
     _calcBounds(onlyWidthHeight) {
-        const aX = [],
+        const aX = [];
         const aY = [];
         let o;
         let prop;
@@ -146,10 +146,10 @@ const Group = createClass(ObjectClass, {}, {
      */
     _getBounds(aX, aY, onlyWidthHeight) {
         const minXY = new Point(min(aX), min(aY));
-        const maxXY = new Point(max(aX), max(aY)),
-        const top = minXY.y || 0
-        const left = minXY.x || 0,
-        const width = (maxXY.x - minXY.x) || 0,
+        const maxXY = new Point(max(aX), max(aY));
+        const top = minXY.y || 0;
+        const left = minXY.x || 0;
+        const width = (maxXY.x - minXY.x) || 0;
         const height = (maxXY.y - minXY.y) || 0;
         this.width = width;
         this.height = height;
@@ -180,7 +180,7 @@ const Group = createClass(ObjectClass, {}, {
 
     realizeTransform: function(object) {
         const matrix = object.calcTransformMatrix();
-        const options = qrDecompose(matrix),
+        const options = qrDecompose(matrix);
         const center = new Point(options.translateX, options.translateY);
         object.flipX = false;
         object.flipY = false;

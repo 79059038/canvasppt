@@ -1,6 +1,7 @@
 import Point from '../publicClass/point.class';
 import Intersection from '../publicClass/intersection.class'
 import {multiplyTransformMatrices as multiplyMatrices, calcRotateMatrix, transformPoint, degreesToRadians, sin as sinFun, cos as cosFun, composeMatrix, sizeAfterTransform} from '../util/misc';
+import objectControls from './object_default_control.mixin';
 
 function arrayFromCoords(coords) {
     return [
@@ -22,7 +23,7 @@ export default {
      * costom controls 接口
      * 一般通过defalut_controls.js添加
      */
-    controls: {},
+    controls: objectControls,
 
     /**
      * 检测当前对象是否仍然存在于cavas当前展示图内
@@ -94,10 +95,10 @@ export default {
      * 计算当前元素的四个顶点坐标 bl br tl tr
      */
     calcACoords() {
-        const rotateMatrix = this.calcRotateMatrix();
-        const translateMatrix = this.calcTranslateMatrix();
+        const rotateMatrix = this._calcRotateMatrix();
+        const translateMatrix = this._calcTranslateMatrix();
         const finalMatrix = multiplyMatrices(translateMatrix, rotateMatrix);
-        const dim = this.getTransformedDimensions();
+        const dim = this._getTransformedDimensions();
         const w = dim.x / 2; const h = dim.y / 2;
         return {
             // corners

@@ -63,7 +63,7 @@ export function renderSquareControl(ctx, left, top, styleOverride, fabricObject)
       ctx.strokeRect(-sizeBy2, -sizeBy2, size, size);
     }
     ctx.restore();
-  }
+}
 
 
 const ControlClass = createClass(Common, {
@@ -88,6 +88,9 @@ const ControlClass = createClass(Common, {
     // 如果存在offsetXY,则绘制一条线连接控制模块与元素盒子
     withConnection: false,
 }, {
+
+    _private_type: 'ControlClass',
+
     name: '',
 
     mouseDownHandler: null,
@@ -97,9 +100,9 @@ const ControlClass = createClass(Common, {
      * @param {*} finalMatrix 
      */
     positionHandler(dim, finalMatrix) {
-        var point = transformPoint({
-          x: this.x * dim.x + this.offsetX,
-          y: this.y * dim.y + this.offsetY }, finalMatrix);
+        const point = transformPoint({
+            x: this.x * dim.x + this.offsetX,
+            y: this.y * dim.y + this.offsetY }, finalMatrix);
         return point;
     },
 

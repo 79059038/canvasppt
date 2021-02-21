@@ -1,5 +1,7 @@
 import {removeListener, addListener} from '../util/dom_event.js'
 import {isTouchEvent} from '../util/dom_event'
+import {fireEvent} from '../publicClass/controls.actions';
+
 
 // 事件监听passive为true表示监听内部不会调用preventDefault。浏览器默认touch相关
 // 为true，防止因为进入监听事件导致滚动轴滚动不可用
@@ -188,7 +190,7 @@ export default {
         transform.altKey = e[this.centeredKey];
 
         this._performTransformAction(e, transform, pointer);
-        transform.actionPerformed && this.requestRenderAll();
+        transform.actionPerformed && this.renderAll();
     },
 
     // 执行变化动作
@@ -356,13 +358,13 @@ export default {
         }
   
         if (this.selection && (!target ||
-          (!target.selectable && !target.isEditing && target !== this._activeObject))) {
-          this._groupSelector = {
-            ex: pointer.x,
-            ey: pointer.y,
-            top: 0,
-            left: 0
-          };
+            (!target.selectable && !target.isEditing && target !== this._activeObject))) {
+            this._groupSelector = {
+                ex: pointer.x,
+                ey: pointer.y,
+                top: 0,
+                left: 0
+            };
         }
   
         if (target) {
@@ -386,7 +388,7 @@ export default {
         }
         this._handleEvent(e, 'down');
         // we must renderAll so that we update the visuals
-        (shouldRender || shouldGroup) && this.requestRenderAll();
+        (shouldRender || shouldGroup) && this.renderAll();
     },
 
     /**
@@ -456,7 +458,7 @@ export default {
         // reset the target information about which corner is selected
         target && (target.__corner = 0);
         if (shouldRender) {
-          this.requestRenderAll();
+          this.renderAll();
         }
         else if (!isClick) {
           this.renderTop();
@@ -595,11 +597,11 @@ export default {
         return false;
     },
 
-    _beforeTransform() {
+    _beforeTransform(e) {
         const t = this._currentTransform;
         this.stateful && t.target.saveState();
         this.fire('before:transform', {
-            e: e,
+            e,
             transform: t,
         });
     },
@@ -639,5 +641,7 @@ export default {
         }
         options.by = by;
         return eventName;
-      }
+    },
+
+    _fire: fireEvent
 }

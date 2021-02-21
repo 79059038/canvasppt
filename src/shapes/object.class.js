@@ -6,6 +6,7 @@ import Common from '../mixins/common.class.mixin';
 import origin from '../mixins/object_origin.mixin';
 import geometry from '../mixins/object_geometry.mixin';
 import stateful from '../mixins/stateful.mixin';
+import interactivity from '../mixins/object_interactivity.mixin';
 import {clone} from '../util/lang_object'
 import {enlivenPatterns} from '../util/misc'
 
@@ -473,7 +474,8 @@ const CObject = createClass(Common, {
     // 结构object_origin中的公共方法
     ...origin,
     ...geometry,
-    ...stateful
+    ...interactivity,
+    ...stateful,
 });
 
 
