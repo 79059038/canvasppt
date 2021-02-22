@@ -1,6 +1,16 @@
 import Point from '../publicClass/point.class';
 import Intersection from '../publicClass/intersection.class'
-import {multiplyTransformMatrices as multiplyMatrices, calcRotateMatrix, transformPoint, degreesToRadians, sin as sinFun, cos as cosFun, composeMatrix, sizeAfterTransform} from '../util/misc';
+import {
+    multiplyTransformMatrices as multiplyMatrices,
+    calcRotateMatrix,
+    transformPoint,
+    degreesToRadians,
+    sin as sinFun,
+    cos as cosFun,
+    composeMatrix,
+    sizeAfterTransform,
+    makeBoundingBoxFromPoints
+} from '../util/misc';
 import objectControls from './object_default_control.mixin';
 
 function arrayFromCoords(coords) {
@@ -23,7 +33,7 @@ export default {
      * costom controls 接口
      * 一般通过defalut_controls.js添加
      */
-    controls: objectControls,
+    __static_controls: objectControls,
 
     /**
      * 检测当前对象是否仍然存在于cavas当前展示图内
@@ -403,5 +413,28 @@ export default {
             pointBR
           );
         return intersection.status === 'Intersection';
+    },
+
+    /**
+     * 判断某个元素是否在 两个点（左上右下）确定的区域 中
+     * @param {Object} pointTL 
+     * @param {Object} pointBR 
+     * @param {Boolean} absolute 
+     * @param {Boolean} calculate 
+     */
+    isContainedWithinRect(pointTL, pointBR, absolute, calculate) {
+        const boundingRect = this.getBoundingRect(absolute, calculate);
+  
+        return (
+          boundingRect.left >= pointTL.x &&
+          boundingRect.left + boundingRect.width <= pointBR.x &&
+          boundingRect.top >= pointTL.y &&
+          boundingRect.top + boundingRect.height <= pointBR.y
+        );
+    },
+
+    getBoundingRect: function(absolute, calculate) {
+        const coords = this.getCoords(absolute, calculate);
+        return makeBoundingBoxFromPoints(coords);
     }
 };

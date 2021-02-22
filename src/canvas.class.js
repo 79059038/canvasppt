@@ -696,7 +696,7 @@ const CanvasClass = createClass(StaticCanvas, {
         if (!corner || !alreadySelected) {
           return 'drag';
         }
-        const control = target.controls[corner];
+        const control = target.__static_controls[corner];
         return control.getActionName(e, control, target);
     },
 
@@ -708,7 +708,7 @@ const CanvasClass = createClass(StaticCanvas, {
 
         const pointer = this.getPointer(e);
         const corner = target.__corner;
-        const actionHandler = !!corner && target.controls[corner].getActionHandler();
+        const actionHandler = !!corner && target.__static_controls[corner].getActionHandler();
         const action = this._getActionFromCorner(alreadySelected, corner, e, target);
         const origin = this._getOriginFromCorner(target, corner);
         const altKey = e[this.centeredKey];

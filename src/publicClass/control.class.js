@@ -128,6 +128,19 @@ const ControlClass = createClass(Common, {
     },
 
     /**
+     * 判断当前元素是否展示control
+     * @param {fabric.Object} fabricObject 
+     * @param {String} controlKey 
+     */
+    getVisibility(fabricObject, controlKey) {
+        const objectVisibility = fabricObject._controlsVisibility;
+        if (objectVisibility && typeof objectVisibility[controlKey] !== 'undefined') {
+          return objectVisibility[controlKey];
+        }
+        return this.visible;
+    },
+
+    /**
      * 返回 mouseDown 的handler
      */
     getMouseDownHandler: function(/* eventData, fabricObject, control */) {

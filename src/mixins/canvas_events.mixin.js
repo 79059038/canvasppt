@@ -378,7 +378,7 @@ export default {
             );
             target.__corner = corner;
             if (target === this._activeObject && (corner || !shouldGroup)) {
-                const control = target.controls[corner];
+                const control = target.__static_controls[corner];
                 const mouseDownHandler = control && control.getMouseDownHandler(e, target, control);
                 if (mouseDownHandler) {
                     mouseDownHandler(e, target, control);
@@ -444,7 +444,7 @@ export default {
                 this.getPointer(e, true),
                 isTouchEvent(e)
             );
-            const control = target.controls[corner];
+            const control = target.__static_controls[corner];
             const mouseUpHandler = control && control.getMouseUpHandler(e, target, control);
             if (mouseUpHandler) {
                 mouseUpHandler(e, target, control);
@@ -500,7 +500,7 @@ export default {
 
     //获得控制边框样式
     getCornerCursor(corner, target, e) {
-        const control = target.controls[corner];
+        const control = target.__static_controls[corner];
         return control.cursorStyleHandler(e, control, target);
     },
 

@@ -179,9 +179,9 @@ export default {
      * @param {Function}} fn - 遍历controls要执行的方法
      */
     forEachControl(fn) {
-        for (const i in this.controls) {
-            if (this.controls.hasOwnProperty(i)) {
-                fn(this.controls[i], i, this);
+        for (const i in this.__static_controls) {
+            if (this.__static_controls.hasOwnProperty(i)) {
+                fn(this.__static_controls[i], i, this);
             }
         }
     },
@@ -229,7 +229,7 @@ export default {
 
     // 判断是否当前控制线是否可见的
     isControlVisible: function(controlKey) {
-        return this.controls[controlKey] && this.controls[controlKey].getVisibility(this, controlKey);
+        return this.__static_controls[controlKey] && this.__static_controls[controlKey].getVisibility(this, controlKey);
     },
 
     // 当销毁之前选中元素或者重新设置选中元素 调用该方法。若返回会false则会中断当前近程

@@ -187,7 +187,7 @@ function skewHandlerX(eventData, transform, x, y) {
 
 export function getLocalPoint(transform, originX, originY, x, y) {
     const target = transform.target,
-        control = target.controls[transform.corner],
+        control = target.__static_controls[transform.corner],
         zoom = target.canvas.getZoom(),
         padding = target.padding / zoom,
         localPoint = target.toLocalPoint(new Point(x, y), originX, originY);

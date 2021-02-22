@@ -105,8 +105,8 @@ export default {
         const y1 = this._groupSelector.ey;
         const x2 = x1 + this._groupSelector.left;
         const y2 = y1 + this._groupSelector.top;
-        const selectionX1Y1 = new Point(min(x1, x2), min(y1, y2));
-        const selectionX2Y2 = new Point(max(x1, x2), max(y1, y2));
+        const selectionX1Y1 = new Point(Math.min(x1, x2), Math.min(y1, y2));
+        const selectionX2Y2 = new Point(Math.max(x1, x2), Math.max(y1, y2));
         const allowIntersect = !this.selectionFullyContained;
         const isClick = x1 === x2 && y1 === y2;
         // we iterate reverse order to collect top first in case of click.

@@ -109,6 +109,15 @@ Point.prototype = {
     clone() {
         return new Point(this.x, this.y);
     },
+
+    min(that) {
+        return new Point(Math.min(this.x, that.x), Math.min(this.y, that.y));
+    },
+
+    max: function (that) {
+        return new Point(Math.max(this.x, that.x), Math.max(this.y, that.y));
+    },
+
     toString() {
         return `${this.x},${this.y}`;
     },
