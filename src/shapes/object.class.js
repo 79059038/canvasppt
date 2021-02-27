@@ -81,7 +81,10 @@ const CObject = createClass(Common, {
     paintFirst: 'fill',
 
     // 当设置为false时 该元素不能被选中后修改属性 
-    selectable: true
+    selectable: true,
+
+    // 控制线和元素之间的距离
+    padding: 0
 }, {
     type: 'object',
 
@@ -100,6 +103,12 @@ const CObject = createClass(Common, {
 
     // 设置鼠标悬浮在这个元素时的光标样式
     hoverCursor: null,
+
+    // 设置为true时 control被渲染为透明的 中空的
+    transparentCorners: true,
+
+    // 控制边框的颜色
+    cornerColor: 'rgb(178,204,255)',
 
     initialize() {
         // fabric 只是做了下setOption 我在createObject先做了 这里留空吧

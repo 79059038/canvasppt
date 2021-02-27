@@ -38,8 +38,8 @@ export function renderCircleControl(ctx, left, top, styleOverride = {}, fabricOb
  * @param {Object} styleOverride 覆盖样式
  * @param {Object} fabricObject 元素自带样式
  */
-export function renderSquareControl(ctx, left, top, styleOverride, fabricObject) {
-    styleOverride = styleOverride || {};
+export function renderSquareControl(ctx, left, top, styleOverride = {}, fabricObject) {
+    
     const size = styleOverride.cornerSize || fabricObject.cornerSize;
     const transparentCorners = typeof styleOverride.transparentCorners !== 'undefined' ?
           styleOverride.transparentCorners : fabricObject.transparentCorners;
@@ -65,8 +65,18 @@ export function renderSquareControl(ctx, left, top, styleOverride, fabricObject)
     ctx.restore();
 }
 
+function ControlClass(options) {
+    if (options.position) {
+        this.x = options.position.x;
+        this.y = options.position.y;
+    }
+    delete options.position;
+    for (var i in options) {
+            this[i] = options[i];
+    }
+}
 
-const ControlClass = createClass(Common, {
+ControlClass.prototype =  {
     // 是否可见
     visible: true,
     // 角度
@@ -87,7 +97,6 @@ const ControlClass = createClass(Common, {
 
     // 如果存在offsetXY,则绘制一条线连接控制模块与元素盒子
     withConnection: false,
-}, {
 
     _private_type: 'ControlClass',
 
@@ -165,6 +174,6 @@ const ControlClass = createClass(Common, {
     cursorStyleHandler(eventData, control /* fabricObject */) {
         return control.cursorStyle;
     }
-});
+};
 
 export default ControlClass;

@@ -1,4 +1,4 @@
-import {track, trigger, TrackOpTypes, ITERATE_KEY} from './effect';
+import {track, trigger, TrackOpTypes, ITERATE_KEY, TriggerOpTypes} from './effect';
 import {isIntegerKey, isArray} from '@/util/lang_array.js'
 import {hasOwn} from '@/util/lang_object.js'
 import {toTypeString} from '@/util/index.js'
@@ -89,6 +89,18 @@ export const isMap = (val) => toTypeString(val) === 'Map'
  */
 function createGetter(isReadonly = false) {
     return function get(target, key, receiver) {
+        if (key === ReactiveFlags.IS_REACTIVE) {
+            return !isReadonly
+        } else if (key === ReactiveFlags.IS_READONLY) {
+            return isReadonly
+        } else if (
+            key === ReactiveFlags.RAW &&
+            receiver === reactiveMap.get(target)
+        ) {
+            return target
+        }
+
+
         const res = Reflect.get(target, key, receiver)
 
         if (!isReadonly) {

@@ -103,7 +103,7 @@ export function getRandomInt(min, max) {
 export function rotatePoint(point, origin, radians) {
     point.subtractEquals(origin);
     const v = rotateVector(point, radians);
-    return Point(v.x, v.y).addEquals(origin);
+    return new Point(v.x, v.y).addEquals(origin);
 }
 
 /**

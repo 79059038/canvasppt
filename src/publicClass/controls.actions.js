@@ -22,6 +22,7 @@ export function fireEvent(eventName, options) {
     target.fire(eventName, options);
 };
 
+// 从目前来看是鼠标悬浮的时候 判断鼠标样式的方法 向左向右等
 export function scaleSkewCursorStyleHandler(eventData, corner, fabricObject) {
     if (eventData[fabricObject.canvas.altActionKey]) {
         return skewCursorStyleHandler(eventData, corner, fabricObject);
@@ -400,7 +401,7 @@ function scaleObject(eventData, transform, x, y, options) {
       by === 'x' && (target.scaleX = scaleX);
       by === 'y' && (target.scaleY = scaleY);
     }
-    hasScaled = oldScaleX !== target.scaleX || oldScaleY !== target.scaleY;
+    const hasScaled = oldScaleX !== target.scaleX || oldScaleY !== target.scaleY;
     if (hasScaled) {
       fireEvent('scaling', commonEventInfo(eventData, transform, x, y));
     }

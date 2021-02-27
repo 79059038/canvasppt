@@ -57,6 +57,10 @@ const CanvasClass = createClass(StaticCanvas, {
     // 
     centeredKey: 'altKey',
 
+    // 设置哪个按键切换控制control
+    // values: 'altKey', 'shiftKey', 'ctrlKey'
+    altActionKey: 'shiftKey',
+
     // 设置为true的时候，会使用中心点作为缩放变换的起点
     centeredScaling: false,
 
